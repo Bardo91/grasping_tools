@@ -6,7 +6,7 @@ add_executable(${TEST_NAME} testCones.cpp)
 target_include_directories(${TEST_NAME} PUBLIC "../../dep/gpis")
 target_link_libraries(${TEST_NAME} LINK_PUBLIC gpis)
 
-target_include_directories(${TEST_NAME} PUBLIC "../../dep/gpisGrasping")
-target_link_libraries(${TEST_NAME} LINK_PUBLIC gpisGrasping)
+target_include_directories(${TEST_NAME} PUBLIC "../../grasping_tools")
+target_link_libraries(${TEST_NAME} LINK_PUBLIC grasping_tools)
 
 add_test(testCones1 testCones)
