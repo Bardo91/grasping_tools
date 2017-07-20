@@ -6,7 +6,7 @@
 ###############################################################
 
 cmake_minimum_required (VERSION 2.8 FATAL_ERROR)
-project(GraspTools)
+project(grasping_tools)
 
 #################################################
 ######### Custom project configuration ##########
@@ -32,7 +32,7 @@ macro(GroupSources curdir)
 	endforeach()
 endmacro()
 
-GroupSources(gpisGrasping)
+GroupSources(grasping_tools)
 
 #########################################
 ###### Loading 3rd party libraries.######
@@ -68,9 +68,9 @@ add_subdirectory(dep/gpis)
 #########################################
 
 # Collect all sources
-file(GLOB_RECURSE GRASPTOOLS_SOURCE_FILES "grasp_tools/*.cpp" "grasp_tools/*.h" "grasp_tools/*.inl")
+file(GLOB_RECURSE GRASPTOOLS_SOURCE_FILES "grasping_tools/*.cpp" "grasping_tools/*.h" "grasping_tools/*.inl")
 
-set(PROJECT_NAME graspTools)
+set(PROJECT_NAME grasping_tools)
 
 add_library(${PROJECT_NAME} STATIC ${GPIS_SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/grasp_tools)
