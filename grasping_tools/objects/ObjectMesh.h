@@ -47,12 +47,12 @@ namespace gpisGrasping {
 		/// Get closest point on the mesh surface from a given point.
 		/// \param _p: given point.
 		/// \return: closest point to given point.
-		pcl::PointXYZ closestVertex(pcl::PointXYZ _p);
+		pcl::PointXYZ closestVertex(const pcl::PointXYZ &_p);
 
 		/// Get closest point on the mesh surface from a given point.
 		/// \param _p: given point.
 		/// \return: id of closest point to given point.
-		int closestVertexId(pcl::PointXYZ _p);
+		int closestVertexId(const pcl::PointXYZ &_p);
 
 		/// Get vertex point by id
 		/// \param id

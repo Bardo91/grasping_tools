@@ -143,12 +143,12 @@ arma::mat gpisGrasping::ObjectMesh::centroidFaces() {
 }
 
 //---------------------------------------------------------------------------------------------------------------------
-pcl::PointXYZ gpisGrasping::ObjectMesh::closestVertex(pcl::PointXYZ _p) {
+pcl::PointXYZ gpisGrasping::ObjectMesh::closestVertex(const pcl::PointXYZ &_p) {
 	return mVertices[closestVertexId(_p)];
 }
 
 //---------------------------------------------------------------------------------------------------------------------
-int gpisGrasping::ObjectMesh::closestVertexId(pcl::PointXYZ _p) {
+int gpisGrasping::ObjectMesh::closestVertexId(const pcl::PointXYZ &_p) {
 	if (mIsKdtreeInit) {
 		mKdTree.setInputCloud(mVertices.makeShared());
 		mIsKdtreeInit = true;
