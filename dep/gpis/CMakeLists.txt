@@ -6,15 +6,20 @@
 ###############################################################
 
 cmake_minimum_required (VERSION 2.8 FATAL_ERROR)
-project(GraspTools)
+project(gpis)
 
 #################################################
 ######### Custom project configuration ##########
 #################################################
 
+# Modify following flags to enable/disable features
+set(ENABLE_PARALLEL_FOR OFF)
+
 #################################################
 ######## Automatic project configuration ########
 #################################################
+# Collect all sources
+file(GLOB_RECURSE GPIS_SOURCE_FILES "gpis/*.cpp" "gpis/*.h" "gpis/*.inl")
 
 # Clasify sources according to folder structure.
 # This creates a nice layout for the project in visual studio
@@ -32,7 +37,7 @@ macro(GroupSources curdir)
 	endforeach()
 endmacro()
 
-GroupSources(gpisGrasping)
+GroupSources(gpis)
 
 #########################################
 ###### Loading 3rd party libraries.######
@@ -44,6 +49,7 @@ if(WIN32)
 else()
     find_package(Armadillo REQUIRED HINTS "/usr/local /usr/")
 endif()
+
 find_package(Boost REQUIRED COMPONENTS system)
 
 ## Load PCL
@@ -56,30 +62,24 @@ else()
 	MESSAGE( FATAL_ERROR "Couldnt Add PCL and/or it's dependencies")
 endif()
 
-#########################################
-######			Compile extra Libraries 		   ######
-#########################################
-
-add_subdirectory(dep/qhull)
-add_subdirectory(dep/gpis)
+## Load OpenMP
+find_package(OpenMP)
+if (OPENMP_FOUND)
+    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+    add_definitions("-DPARALLEL_FOR_ENABLED")
+    message(STATUS "Found OpenMP, enabling parallelization")
+else()
+    message(STATUS "Not Found OpenMP, disabling parallelization")
+endif()
 
 #########################################
 ######			Library 		   ######
 #########################################
+set(PROJECT_NAME gpis)
 
-# Collect all sources
-file(GLOB_RECURSE GRASPTOOLS_SOURCE_FILES "grasp_tools/*.cpp" "grasp_tools/*.h" "grasp_tools/*.inl")
-
-set(PROJECT_NAME graspTools)
-
-add_library(${PROJECT_NAME} STATIC ${GPIS_SOURCE_FILES})
-target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/grasp_tools)
-
-target_include_directories(${PROJECT_NAME} PUBLIC "dep/gpis/gpis")
-target_link_libraries(${PROJECT_NAME} LINK_PUBLIC gpis)
-
-target_include_directories(${PROJECT_NAME} PUBLIC "dep/qhull/src")
-target_link_libraries(${PROJECT_NAME} LINK_PUBLIC qhull)
+add_library(${PROJECT_NAME} ${GPIS_SOURCE_FILES})
+target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/gpis)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${ARMADILLO_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} LINK_PUBLIC ${ARMADILLO_LIBRARIES})
@@ -90,9 +90,5 @@ target_link_libraries(${PROJECT_NAME} LINK_PUBLIC ${Boost_LIBRARIES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${PCL_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} LINK_PUBLIC ${PCL_LIBRARIES})
 
-#########################################
-######			   TESTS           ######
-#########################################
-enable_testing()
-
-add_subdirectory(tests)
+target_include_directories(${PROJECT_NAME} PUBLIC ${OpenCV_INCLUDE_DIRS})  ## REMOVE
+target_link_libraries(${PROJECT_NAME} LINK_PUBLIC ${OpenCV_LIBS})
