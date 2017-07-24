@@ -18,7 +18,7 @@
 #include <vector>
 
 namespace gpisGrasping {
-	class ObjectMesh: private Object {
+	class ObjectMesh: public Object {
 	public:
 		/// Construct object from a file.
 		/// \param _filename: path to file.
@@ -58,6 +58,9 @@ namespace gpisGrasping {
 		/// \param id
 		/// \return point
 		pcl::PointXYZ vertex(int _id);
+
+		/// Get mesh info
+		void mesh(pcl::PointCloud<pcl::PointXYZ> &_vertices, std::vector<pcl::Vertices> &_faces);
 
 	private:
 		pcl::PointCloud<pcl::PointXYZ> mVertices;

@@ -10,6 +10,7 @@
 
 #include <pcl/io/ply_io.h>
 #include <pcl/io/obj_io.h>
+#include <pcl/io/vtk_lib_io.h>
 #include <pcl/PCLPointCloud2.h>
 #include <pcl/common/centroid.h>
 
@@ -17,17 +18,25 @@
 gpisGrasping::ObjectMesh::ObjectMesh(std::string _filename) {
 	// Load information from file.
 	pcl::PolygonMesh mesh;
-	if (_filename.find_last_of(".ply") != std::string::npos) {
+	if (_filename.find(".ply") != std::string::npos) {
 		if(pcl::io::loadPLYFile(_filename, mesh) != 0) {
 			std::cerr << "Error loading mesh of object" << std::endl;
 			return;
 		}
-	}else if (_filename.find_last_of(".obj") != std::string::npos) {
+	}
+	else if (_filename.find(".obj") != std::string::npos) {
 		if (pcl::io::loadOBJFile(_filename, mesh) != 0) {
 			std::cerr << "Error loading mesh of object" << std::endl;
 			return;
 		}
-	}else{
+	}
+	else if (_filename.find(".stl") != std::string::npos) {
+		if (pcl::io::loadPolygonFileSTL(_filename, mesh) == 0) {
+			std::cerr << "Error loading mesh of object" << std::endl;
+			return;
+		}
+	}
+	else{
 		assert(false);
 		std::cerr << "Unsupported filetype, please provide another filetype." << std::endl;
 		return;
@@ -110,7 +119,7 @@ arma::mat gpisGrasping::ObjectMesh::intersectRay(arma::colvec3 _p1, arma::colvec
 
 		arma::colvec3 intersection;
 		if (intersectRayTriangle(_p1, _p2, {v1.x,v1.y,v1.z}, { v2.x,v2.y,v2.z }, { v3.x,v3.y,v3.z }, intersection)) {
-            intersections.insert_cols(intersections.n_cols - 1, intersection);
+            intersections.insert_cols(intersections.n_cols, intersection);
 		}
 
 	}
@@ -134,7 +143,7 @@ arma::mat gpisGrasping::ObjectMesh::centroidFaces() {
 			arma::colvec3 v2 = { p3.x - p1.x, p3.y - p1.y, p3.z - p1.z };
 			point.subvec(3, 5) = arma::cross(v1, v2);
 
-            mCentroidFaces.insert_cols(mCentroidFaces.n_cols-1, point);
+            mCentroidFaces.insert_cols(mCentroidFaces.n_cols, point);
 		}
 		assert(mCentroidFaces.n_cols == mFaces.size());
 	}
@@ -163,4 +172,10 @@ int gpisGrasping::ObjectMesh::closestVertexId(const pcl::PointXYZ &_p) {
 
 pcl::PointXYZ gpisGrasping::ObjectMesh::vertex(int _id) {
 	return mVertices[_id];
+}
+
+//---------------------------------------------------------------------------------------------------------------------
+void gpisGrasping::ObjectMesh::mesh(pcl::PointCloud<pcl::PointXYZ>& _vertices, std::vector<pcl::Vertices>& _faces) {
+	_vertices = mVertices;
+	_faces = mFaces;
 }

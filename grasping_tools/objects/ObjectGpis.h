@@ -14,7 +14,7 @@
 #include <Sampler/Prior/Mean.h>
 
 namespace gpisGrasping {
-	class ObjectGpis: private Object{
+	class ObjectGpis: public Object{
 	public:
 		/// Constructor Object GPIS 
 		ObjectGpis(const arma::mat &_dataPoints, gpis::Mean *_gpMean, gpis::Kernel *_gpKernel, const arma::vec &_gpMeanParams);
