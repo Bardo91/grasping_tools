@@ -19,7 +19,7 @@
 namespace gpisGrasping {
 	GripperHandTwoFingers::GripperHandTwoFingers(double _aperture) {
 		mAperture = _aperture;
-		mModel = "C:/programming/workspaceCommon/gpisGrasping/projects/grasping/hands/gripper/";
+        mModel = "/home/bardo91/programming/gpisGrasping/projects/grasping/hands/gripper/";
 		if (pcl::io::loadPolygonFileSTL(mModel + "base.stl", mMeshBase) == 0) {
 			PCL_ERROR("Failed to load STL file\n");
 		}
