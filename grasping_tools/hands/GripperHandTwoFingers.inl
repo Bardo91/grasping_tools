@@ -9,6 +9,7 @@
 #include <objects/ObjectMesh.h>
 #include <Grasp.h>
 #include <mathTools.h>
+#include <deque>
 
 namespace gpisGrasping {
 	template<>
@@ -90,19 +91,45 @@ namespace gpisGrasping {
 		// Somekind of shape analisys? 
 		// Pregeneration of contact points and choose grasp with them
 		// Machine learning for grasping?
-
+/*
 		auto candidatePoints = _object.centroidFaces();
 
 		// Get a random candidate point // 666 TODO improve candidate selection
 		arma::imat id = arma::randi(1, 1, arma::distr_param(0, candidatePoints.n_cols - 1));
 
-		arma::colvec6 candatePoint = candidatePoints.col(id(0,0));
+        arma::colvec6 candidatePoint = candidatePoints.col(id(0,0));
 
-		arma::mat intersections = _object.intersectRay(candidatePoints.rows(0, 2), candidatePoints.rows(0, 2) + candidatePoints.rows(3, 5));
+        arma::mat intersections = _object.intersectRay(candidatePoint.rows(0, 2), candidatePoint.rows(0, 2) + candidatePoint.rows(3, 5));
+
+        typedef std::pair<int, double> PairRayData;
+        std::vector<PairRayData> arrangedPoints;
+        for(unsigned int i = 0; i < intersections.n_cols; i++){
+            arma::colvec3 v = candidatePoint.rows(0,2) - intersections.col(i);
+            if(arma::dot(v, candidatePoint.rows(3,5)) <0){
+                arrangedPoints.push_back(PairRayData(i, -arma::norm(v)));
+            }else{
+                arrangedPoints.push_back(PairRayData(i, arma::norm(v)));
+            }
+        }
+
+        std::sort(arrangedPoints.begin(), arrangedPoints.end(),[](const PairRayData &_a, const PairRayData &_b) -> bool{
+            return _a.second < _b.second;
+        });
 
 		// Analisys of cut points (finger size, aperture etc...)
-
+        // 666 TODO
+*/
+        // Generate grasp
 		Grasp grasp;
+        std::vector<ContactPoint> cps;
+
+        //ContactPoint cp1(cpPos2, arma::eye(3, 3), values.tail(3), arma::eye(3, 3), eContactTypes::SFC, 1, 0.4, 0.4);
+        //ContactPoint cp2(cpPos2, arma::eye(3, 3), values.tail(3), arma::eye(3, 3), eContactTypes::SFC, 1, 0.4, 0.4);
+        //cps.push_back(cp1);
+        //cps.push_back(cp2);
+
+        grasp.contactPoints(cps);
+
 		return grasp;
 	}
 

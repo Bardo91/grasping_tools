@@ -56,7 +56,7 @@ gpisGrasping::ObjectMesh::ObjectMesh(std::string _filename) {
 }
 
 //---------------------------------------------------------------------------------------------------------------------
-gpisGrasping::ObjectMesh::ObjectMesh(pcl::PointCloud<pcl::PointXYZ>& _vertices, std::vector<pcl::Vertices>& _faces) {
+gpisGrasping::ObjectMesh::ObjectMesh(pcl::PointCloud<pcl::PointNormal>& _vertices, std::vector<pcl::Vertices>& _faces) {
 	mVertices = _vertices;
 	mFaces = _faces;
 
@@ -77,7 +77,8 @@ arma::colvec3 gpisGrasping::ObjectMesh::center() {
 //---------------------------------------------------------------------------------------------------------------------
 arma::colvec3 gpisGrasping::ObjectMesh::intersect(arma::colvec3 _initPoint, arma::colvec3 _dir) {
 	// Look for closest point.
-	auto vertexId = closestVertexId(pcl::PointXYZ(_initPoint[0], _initPoint[1], _initPoint[2]));
+    pcl::PointNormal pInit; pInit.x = _initPoint[0]; pInit.y = _initPoint[1]; pInit.z = _initPoint[2];
+    auto vertexId = closestVertexId(pInit);
 
 	std::vector<pcl::Vertices> facesSharedVertex;
 	// Choose closest faces.
@@ -112,13 +113,13 @@ arma::colvec3 gpisGrasping::ObjectMesh::intersect(arma::colvec3 _initPoint, arma
 //---------------------------------------------------------------------------------------------------------------------
 arma::mat gpisGrasping::ObjectMesh::intersectRay(arma::colvec3 _p1, arma::colvec3 _p2) {
 	arma::mat intersections;
-	for (auto &face : mFaces) {
+    for (auto &face : mFaces) { // 666 TODO pending parallelization
 		auto v1 = mVertices[face.vertices[0]];
 		auto v2 = mVertices[face.vertices[1]];
 		auto v3 = mVertices[face.vertices[2]];
 
 		arma::colvec3 intersection;
-		if (intersectRayTriangle(_p1, _p2, {v1.x,v1.y,v1.z}, { v2.x,v2.y,v2.z }, { v3.x,v3.y,v3.z }, intersection)) {
+        if (intersectRayTriangle(_p1, _p2, {v1.x,v1.y,v1.z}, { v2.x,v2.y,v2.z }, { v3.x,v3.y,v3.z }, intersection)) {
             intersections.insert_cols(intersections.n_cols, intersection);
 		}
 
@@ -132,16 +133,20 @@ arma::mat gpisGrasping::ObjectMesh::centroidFaces() {
 		for (auto &face : mFaces) {
 			auto p1 = mVertices[face.vertices[0]];
 			auto p2 = mVertices[face.vertices[1]];
-			auto p3 = mVertices[face.vertices[2]];
+            auto p3 = mVertices[face.vertices[2]];
 
 			arma::colvec6 point;
-			point[0] = ( p1.x + p2.x + p3.x )/3;
-			point[1] = ( p1.y + p2.y + p3.y )/3;
-			point[2] = ( p1.z + p2.z + p3.z )/3;
+            point[0] = ( p1.x + p2.x + p3.x )/3;
+            point[1] = ( p1.y + p2.y + p3.y )/3;
+            point[2] = ( p1.z + p2.z + p3.z )/3;
 
-			arma::colvec3 v1 = { p2.x - p1.x, p2.y - p1.y, p2.z - p1.z };
-			arma::colvec3 v2 = { p3.x - p1.x, p3.y - p1.y, p3.z - p1.z };
-			point.subvec(3, 5) = arma::cross(v1, v2);
+            point[3] = ( p1.normal_x + p2.normal_x + p3.normal_x )/3;
+            point[4] = ( p1.normal_y + p2.normal_y + p3.normal_y )/3;
+            point[5] = ( p1.normal_z + p2.normal_z + p3.normal_z )/3;
+
+            point[3] /= arma::norm(point.rows(3,5));
+            point[4] /= arma::norm(point.rows(3,5));
+            point[5] /= arma::norm(point.rows(3,5));
 
             mCentroidFaces.insert_cols(mCentroidFaces.n_cols, point);
 		}
@@ -152,12 +157,12 @@ arma::mat gpisGrasping::ObjectMesh::centroidFaces() {
 }
 
 //---------------------------------------------------------------------------------------------------------------------
-pcl::PointXYZ gpisGrasping::ObjectMesh::closestVertex(const pcl::PointXYZ &_p) {
+pcl::PointNormal gpisGrasping::ObjectMesh::closestVertex(const pcl::PointNormal &_p) {
 	return mVertices[closestVertexId(_p)];
 }
 
 //---------------------------------------------------------------------------------------------------------------------
-int gpisGrasping::ObjectMesh::closestVertexId(const pcl::PointXYZ &_p) {
+int gpisGrasping::ObjectMesh::closestVertexId(const pcl::PointNormal &_p) {
 	if (mIsKdtreeInit) {
 		mKdTree.setInputCloud(mVertices.makeShared());
 		mIsKdtreeInit = true;
@@ -170,12 +175,12 @@ int gpisGrasping::ObjectMesh::closestVertexId(const pcl::PointXYZ &_p) {
 	return pointIdxNKNSearch[0];
 }
 
-pcl::PointXYZ gpisGrasping::ObjectMesh::vertex(int _id) {
+pcl::PointNormal gpisGrasping::ObjectMesh::vertex(int _id) {
 	return mVertices[_id];
 }
 
 //---------------------------------------------------------------------------------------------------------------------
-void gpisGrasping::ObjectMesh::mesh(pcl::PointCloud<pcl::PointXYZ>& _vertices, std::vector<pcl::Vertices>& _faces) {
+void gpisGrasping::ObjectMesh::mesh(pcl::PointCloud<pcl::PointNormal>& _vertices, std::vector<pcl::Vertices>& _faces) {
 	_vertices = mVertices;
 	_faces = mFaces;
 }

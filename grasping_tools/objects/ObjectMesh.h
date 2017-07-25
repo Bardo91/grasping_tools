@@ -25,7 +25,7 @@ namespace gpisGrasping {
 		ObjectMesh(std::string _filename);
 
 		/// Construct object from vertices and faces indices.
-		ObjectMesh(pcl::PointCloud<pcl::PointXYZ> &_vertices, std::vector<pcl::Vertices> &_faces);
+        ObjectMesh(pcl::PointCloud<pcl::PointNormal> &_vertices, std::vector<pcl::Vertices> &_faces);
 
 		/// Return centroid 3D center of object.
 		arma::colvec3 center();
@@ -47,28 +47,28 @@ namespace gpisGrasping {
 		/// Get closest point on the mesh surface from a given point.
 		/// \param _p: given point.
 		/// \return: closest point to given point.
-		pcl::PointXYZ closestVertex(const pcl::PointXYZ &_p);
+        pcl::PointNormal closestVertex(const pcl::PointNormal &_p);
 
 		/// Get closest point on the mesh surface from a given point.
 		/// \param _p: given point.
 		/// \return: id of closest point to given point.
-		int closestVertexId(const pcl::PointXYZ &_p);
+        int closestVertexId(const pcl::PointNormal &_p);
 
 		/// Get vertex point by id
 		/// \param id
 		/// \return point
-		pcl::PointXYZ vertex(int _id);
+        pcl::PointNormal vertex(int _id);
 
 		/// Get mesh info
-		void mesh(pcl::PointCloud<pcl::PointXYZ> &_vertices, std::vector<pcl::Vertices> &_faces);
+        void mesh(pcl::PointCloud<pcl::PointNormal> &_vertices, std::vector<pcl::Vertices> &_faces);
 
 	private:
-		pcl::PointCloud<pcl::PointXYZ> mVertices;
+        pcl::PointCloud<pcl::PointNormal> mVertices;
 		std::vector<pcl::Vertices> mFaces;
 		arma::mat mCentroidFaces;
 		arma::colvec3 mCentroid;
 		bool mIsKdtreeInit = false;
-		pcl::KdTreeFLANN<pcl::PointXYZ> mKdTree;
+        pcl::KdTreeFLANN<pcl::PointNormal> mKdTree;
 
 	};
 }	//	gpisGrasping
