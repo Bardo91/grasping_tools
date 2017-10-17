@@ -96,3 +96,6 @@ target_link_libraries(${PROJECT_NAME} LINK_PUBLIC ${PCL_LIBRARIES})
 enable_testing()
 
 add_subdirectory(tests)
+
+
+set_property(TARGET grasping_tools PROPERTY FOLDER "dep")
