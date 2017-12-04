@@ -14,7 +14,7 @@
 using namespace arma;
 using namespace std;
 
-namespace gpisGrasping {
+namespace grasping_tools {
 	//-----------------------------------------------------------------------------------------------------------------
 	IterativeGraspWrenchSpace::IterativeGraspWrenchSpace(const Grasp & _grasp, eForceLimitType _type) :
 		mGrasp(_grasp),
@@ -275,5 +275,5 @@ namespace gpisGrasping {
 		return mWrenches.col(maxIndex);
 	}
 
-}	//	namespace gpisGrasping
+}	//	namespace grasping_tools
 

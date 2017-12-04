@@ -11,7 +11,7 @@
 #include"../Hand.h"
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
-namespace gpisGrasping {
+namespace grasping_tools {
 	class SimpleHandFourFingers: public Hand {
 	public:
 		/// Constructor

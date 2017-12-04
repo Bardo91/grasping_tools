@@ -15,7 +15,7 @@
 #include <pcl/common/centroid.h>
 
 //---------------------------------------------------------------------------------------------------------------------
-gpisGrasping::ObjectMesh::ObjectMesh(std::string _filename) {
+grasping_tools::ObjectMesh::ObjectMesh(std::string _filename) {
 	// Load information from file.
 	pcl::PolygonMesh mesh;
 	if (_filename.find(".ply") != std::string::npos) {
@@ -56,7 +56,7 @@ gpisGrasping::ObjectMesh::ObjectMesh(std::string _filename) {
 }
 
 //---------------------------------------------------------------------------------------------------------------------
-gpisGrasping::ObjectMesh::ObjectMesh(pcl::PointCloud<pcl::PointNormal>& _vertices, std::vector<pcl::Vertices>& _faces) {
+grasping_tools::ObjectMesh::ObjectMesh(pcl::PointCloud<pcl::PointNormal>& _vertices, std::vector<pcl::Vertices>& _faces) {
 	mVertices = _vertices;
 	mFaces = _faces;
 
@@ -70,12 +70,12 @@ gpisGrasping::ObjectMesh::ObjectMesh(pcl::PointCloud<pcl::PointNormal>& _vertice
 }
 
 //---------------------------------------------------------------------------------------------------------------------
-arma::colvec3 gpisGrasping::ObjectMesh::center() {
+arma::colvec3 grasping_tools::ObjectMesh::center() {
 	return mCentroid;
 }
 
 //---------------------------------------------------------------------------------------------------------------------
-arma::colvec3 gpisGrasping::ObjectMesh::intersect(arma::colvec3 _initPoint, arma::colvec3 _dir) {
+arma::colvec3 grasping_tools::ObjectMesh::intersect(arma::colvec3 _initPoint, arma::colvec3 _dir) {
 	// Look for closest point.
     pcl::PointNormal pInit; pInit.x = _initPoint[0]; pInit.y = _initPoint[1]; pInit.z = _initPoint[2];
     auto vertexId = closestVertexId(pInit);
@@ -111,7 +111,7 @@ arma::colvec3 gpisGrasping::ObjectMesh::intersect(arma::colvec3 _initPoint, arma
 }
 
 //---------------------------------------------------------------------------------------------------------------------
-arma::mat gpisGrasping::ObjectMesh::intersectRay(arma::colvec3 _p1, arma::colvec3 _p2) {
+arma::mat grasping_tools::ObjectMesh::intersectRay(arma::colvec3 _p1, arma::colvec3 _p2) {
 	arma::mat intersections;
     for (auto &face : mFaces) { // 666 TODO pending parallelization
 		auto v1 = mVertices[face.vertices[0]];
@@ -128,7 +128,7 @@ arma::mat gpisGrasping::ObjectMesh::intersectRay(arma::colvec3 _p1, arma::colvec
 }
 
 //---------------------------------------------------------------------------------------------------------------------
-arma::mat gpisGrasping::ObjectMesh::centroidFaces() {
+arma::mat grasping_tools::ObjectMesh::centroidFaces() {
 	if (mCentroidFaces.n_cols == 0) {
 		for (auto &face : mFaces) {
 			auto p1 = mVertices[face.vertices[0]];
@@ -157,12 +157,12 @@ arma::mat gpisGrasping::ObjectMesh::centroidFaces() {
 }
 
 //---------------------------------------------------------------------------------------------------------------------
-pcl::PointNormal gpisGrasping::ObjectMesh::closestVertex(const pcl::PointNormal &_p) {
+pcl::PointNormal grasping_tools::ObjectMesh::closestVertex(const pcl::PointNormal &_p) {
 	return mVertices[closestVertexId(_p)];
 }
 
 //---------------------------------------------------------------------------------------------------------------------
-int gpisGrasping::ObjectMesh::closestVertexId(const pcl::PointNormal &_p) {
+int grasping_tools::ObjectMesh::closestVertexId(const pcl::PointNormal &_p) {
 	if (mIsKdtreeInit) {
 		mKdTree.setInputCloud(mVertices.makeShared());
 		mIsKdtreeInit = true;
@@ -175,12 +175,12 @@ int gpisGrasping::ObjectMesh::closestVertexId(const pcl::PointNormal &_p) {
 	return pointIdxNKNSearch[0];
 }
 
-pcl::PointNormal gpisGrasping::ObjectMesh::vertex(int _id) {
+pcl::PointNormal grasping_tools::ObjectMesh::vertex(int _id) {
 	return mVertices[_id];
 }
 
 //---------------------------------------------------------------------------------------------------------------------
-void gpisGrasping::ObjectMesh::mesh(pcl::PointCloud<pcl::PointNormal>& _vertices, std::vector<pcl::Vertices>& _faces) {
+void grasping_tools::ObjectMesh::mesh(pcl::PointCloud<pcl::PointNormal>& _vertices, std::vector<pcl::Vertices>& _faces) {
 	_vertices = mVertices;
 	_faces = mFaces;
 }

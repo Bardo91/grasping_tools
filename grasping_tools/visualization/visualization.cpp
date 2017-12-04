@@ -8,7 +8,7 @@
 #include "visualization.h"
 #include <pcl/ModelCoefficients.h>
 
-namespace gpisGrasping {
+namespace grasping_tools {
 	void plotContactPoint(const ContactPoint & _cp, pcl::visualization::PCLVisualizer & _viewer, double _scaleFactor, std::string _tag, unsigned _viewport) {
 		pcl::ModelCoefficients cone;
 		cone.values.resize(7);

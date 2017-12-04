@@ -11,7 +11,7 @@
 
 using namespace arma;
 
-namespace gpisGrasping {
+namespace grasping_tools {
 	//--------------------------------------------------------------------------------------------------------------------
 	mat samplePointsEllipsoidEquidistributed(double _a, double _b, double _c, unsigned _nPoints) {
 		mat points(3, _nPoints+1);

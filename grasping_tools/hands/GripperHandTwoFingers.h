@@ -11,7 +11,7 @@
 #include"../Hand.h"
 #include <pcl/PolygonMesh.h>
 
-namespace gpisGrasping {
+namespace grasping_tools {
 	class GripperHandTwoFingers : public Hand {
 	public:
 		/// Constructor of hand. 

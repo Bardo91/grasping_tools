@@ -16,7 +16,7 @@
 #include <pcl/common/transforms.h>
 #include <pcl/PCLPointCloud2.h>
 
-namespace gpisGrasping {
+namespace grasping_tools {
 	GripperHandTwoFingers::GripperHandTwoFingers(double _aperture) {
 		mAperture = _aperture;
         mModel = "/home/bardo91/programing/gpisGrasping/projects/grasping/hands/gripper/";

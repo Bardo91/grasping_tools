@@ -10,7 +10,7 @@
 #include <Grasp.h>
 #include <cassert>
 
-namespace gpisGrasping {
+namespace grasping_tools {
 	template<>
 	inline Grasp SimpleHandFourFingers::generate<ObjectGpis>(ObjectGpis &_object) {
 		// Get random point on a sphere with radius 1.5 of max distance from object's origin.

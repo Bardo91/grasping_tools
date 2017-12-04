@@ -10,7 +10,7 @@
 
 #include <armadillo>
 
-namespace gpisGrasping {
+namespace grasping_tools {
 	class Object {
 	public:
 		// Return the centroid of the object.

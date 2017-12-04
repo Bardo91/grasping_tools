@@ -178,7 +178,7 @@ namespace gpis {
 							iter->mAngles.insert(iter->mAngles.end(), iter2->mAngles.begin(), iter2->mAngles.begin() + nearIndex + 1);
 
 
-							updateEdgeAngles(*iter, x, gradX, { 0, oldEnd, oldEnd + 1, iter->mIndices.size() - 1 });
+                            updateEdgeAngles(*iter, x, gradX, { 0, oldEnd, oldEnd + 1, iter->mIndices.size() - 1 });
 							iter = frontiers.erase(iter2);
 							if (_viewer) {
 								redrawCloud(_viewer, gradX);
@@ -204,7 +204,7 @@ namespace gpis {
 							// Update frontier
 							iter->mIndices.push_back(newIndex);
 							iter->mAngles.push_back(M_PI);
-							updateEdgeAngles(*iter, x, gradX, { 0, iter->mIndices.size() - 2 });
+                            updateEdgeAngles(*iter, x, gradX, { 0, iter->mIndices.size() - 2 });
 							if (_viewer) {
 								redrawCloud(_viewer, gradX);
 								auto vertices = mPolygons.back().vertices;
@@ -219,7 +219,7 @@ namespace gpis {
 
 						iter->mAngles.pop_back();
 						iter->mIndices.pop_back();
-						updateEdgeAngles(*iter, x, gradX, { iter->mIndices.size() - 1, 0 });
+                        updateEdgeAngles(*iter, x, gradX, { iter->mIndices.size() - 1, 0 });
 						if (_viewer) {
 							redrawCloud(_viewer, gradX);
 							auto vertices = mPolygons.back().vertices;
@@ -232,7 +232,7 @@ namespace gpis {
 
 						iter->mAngles.erase(iter->mAngles.begin());
 						iter->mIndices.erase(iter->mIndices.begin());
-						updateEdgeAngles(*iter, x, gradX, { 0, iter->mIndices.size() - 1 });
+                        updateEdgeAngles(*iter, x, gradX, { 0, iter->mIndices.size() - 1 });
 						if (_viewer) {
 							redrawCloud(_viewer, gradX);
 							auto vertices = mPolygons.back().vertices;
@@ -248,11 +248,11 @@ namespace gpis {
 						Frontier newFrontier;
 						newFrontier.mIndices.insert(newFrontier.mIndices.begin(), iter->mIndices.begin() + nearIndex, iter->mIndices.end());
 						newFrontier.mAngles.insert(newFrontier.mAngles.begin(), iter->mAngles.begin() + nearIndex, iter->mAngles.end());
-						updateEdgeAngles(newFrontier, x, gradX, { 0, newFrontier.mIndices.size() - 1 });
+                        updateEdgeAngles(newFrontier, x, gradX, { 0, newFrontier.mIndices.size() - 1 });
 
 						iter->mIndices.resize(nearIndex + 1);
 						iter->mAngles.resize(nearIndex + 1);
-						updateEdgeAngles(*iter, x, gradX, { 0, iter->mIndices.size() - 1 });
+                        updateEdgeAngles(*iter, x, gradX, { 0, iter->mIndices.size() - 1 });
 
 						iter = frontiers.insert(frontiers.end(), newFrontier);
 						if (_viewer) {

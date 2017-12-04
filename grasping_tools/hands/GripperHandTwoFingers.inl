@@ -11,7 +11,7 @@
 #include <mathTools.h>
 #include <deque>
 
-namespace gpisGrasping {
+namespace grasping_tools {
 	template<>
 	inline Grasp GripperHandTwoFingers::generate<ObjectGpis>(ObjectGpis &_object) {
 		// Get random point on a sphere with radius 1.5 of max distance from object's origin.

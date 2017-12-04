@@ -11,7 +11,7 @@
 #include "../ContactPoint.h"
 #include <pcl/visualization/pcl_visualizer.h>
 
-namespace gpisGrasping {
+namespace grasping_tools {
 	void plotContactPoint(const ContactPoint &_cp, pcl::visualization::PCLVisualizer &_viewer, double _scaleFactor = 1.0, std::string _tag = "cone", unsigned _viewport = 0);
 }
 

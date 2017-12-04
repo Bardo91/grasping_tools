@@ -11,7 +11,7 @@
 #include "Grasp.h"
 #include "Object.h"
 
-namespace gpisGrasping {
+namespace grasping_tools {
 	class Hand {
 	public:
 		template<typename ObjectType_>

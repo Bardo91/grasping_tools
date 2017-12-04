@@ -17,7 +17,7 @@
 
 #include <vector>
 
-namespace gpisGrasping {
+namespace grasping_tools {
 	class ObjectMesh: public Object {
 	public:
 		/// Construct object from a file.

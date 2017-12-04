@@ -10,7 +10,7 @@
 
 #include <armadillo>
 
-namespace gpisGrasping {
+namespace grasping_tools {
 	/// Based on Distance Between a Point and a Convex Cone in n - Dimensional  Space : Computation and Applications, 
 	/// by Yu Zheng and Chee Meng Chew.
 	class DistancePointConvexCone {

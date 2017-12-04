@@ -14,7 +14,7 @@
 #include "ContactPoint.h"
 #include "Grasp.h"
 
-namespace gpisGrasping {
+namespace grasping_tools {
 	/// Based on the article "An efficient Algorithm for a Grasp Quality Measure" by Yu Zheng.
 	class IterativeGraspWrenchSpace {
 	public:		// Public interface
@@ -56,6 +56,6 @@ namespace gpisGrasping {
 
 		double mLastLMRW;
 	};
-}	//	namespace gpisGrasping
+}	//	namespace grasping_tools
 
 #endif //	GPISGRASPING_GRASPWRENCHSPACE_H_

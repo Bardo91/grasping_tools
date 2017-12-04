@@ -8,7 +8,7 @@
 #include "ObjectGpis.h"
 
 //---------------------------------------------------------------------------------------------------------------------
-gpisGrasping::ObjectGpis::ObjectGpis(const arma::mat & _dataPoints, gpis::Mean * _gpMean, gpis::Kernel * _gpKernel, const arma::vec &_gpMeanParams):
+grasping_tools::ObjectGpis::ObjectGpis(const arma::mat & _dataPoints, gpis::Mean * _gpMean, gpis::Kernel * _gpKernel, const arma::vec &_gpMeanParams):
 	mDataPoints(_dataPoints.rows(0,2)),
 	mDataNormals(_dataPoints.rows(3, 5)),
 	mGpMean(_gpMean), 
@@ -18,7 +18,7 @@ gpisGrasping::ObjectGpis::ObjectGpis(const arma::mat & _dataPoints, gpis::Mean *
 }
 
 //---------------------------------------------------------------------------------------------------------------------
-gpisGrasping::ObjectGpis::ObjectGpis(const arma::mat &_dataPoints, const arma::mat &_observations, gpis::Mean *_gpMean, gpis::Kernel *_gpKernel, const arma::vec &_gpMeanParams, double &_sigmaData):
+grasping_tools::ObjectGpis::ObjectGpis(const arma::mat &_dataPoints, const arma::mat &_observations, gpis::Mean *_gpMean, gpis::Kernel *_gpKernel, const arma::vec &_gpMeanParams, double &_sigmaData):
 	mDataPoints(_dataPoints.rows(0, 2)),
 	mObservationPoints(_observations),
 	mSigmaAlignment(_sigmaData),
@@ -30,7 +30,7 @@ gpisGrasping::ObjectGpis::ObjectGpis(const arma::mat &_dataPoints, const arma::m
 }
 
 //---------------------------------------------------------------------------------------------------------------------
-arma::colvec3 gpisGrasping::ObjectGpis::center(){
+arma::colvec3 grasping_tools::ObjectGpis::center(){
 	if (mCenter.n_elem == 0) {
 		mCenter.resize(3);
 		mCenter[0] = arma::accu(mDataPoints.row(0)) / mDataPoints.n_cols;
@@ -42,7 +42,7 @@ arma::colvec3 gpisGrasping::ObjectGpis::center(){
 }
 
 //---------------------------------------------------------------------------------------------------------------------
-double gpisGrasping::ObjectGpis::evaluate(const arma::vec3 & _point){
+double grasping_tools::ObjectGpis::evaluate(const arma::vec3 & _point){
 	if (!mPrecomputedGpData) {
 		precomputeGpData();
 		mPrecomputedGpData = true;
@@ -52,7 +52,7 @@ double gpisGrasping::ObjectGpis::evaluate(const arma::vec3 & _point){
 }
 
 //---------------------------------------------------------------------------------------------------------------------
-void gpisGrasping::ObjectGpis::evaluate(const arma::vec3 & _point, arma::colvec4 & _values) {
+void grasping_tools::ObjectGpis::evaluate(const arma::vec3 & _point, arma::colvec4 & _values) {
 	if (!mPrecomputedGpData) {
 		precomputeGpData();
 		mPrecomputedGpData = true;
@@ -62,7 +62,7 @@ void gpisGrasping::ObjectGpis::evaluate(const arma::vec3 & _point, arma::colvec4
 }
 
 //---------------------------------------------------------------------------------------------------------------------
-void gpisGrasping::ObjectGpis::evaluate(const arma::vec3 & _point, arma::colvec4 & _values, arma::mat44 & _covariances) {
+void grasping_tools::ObjectGpis::evaluate(const arma::vec3 & _point, arma::colvec4 & _values, arma::mat44 & _covariances) {
 	if (!mPrecomputedGpData) {
 		precomputeGpData();
 		mPrecomputedGpData = true;
@@ -74,7 +74,7 @@ void gpisGrasping::ObjectGpis::evaluate(const arma::vec3 & _point, arma::colvec4
 }
 
 //---------------------------------------------------------------------------------------------------------------------
-void gpisGrasping::ObjectGpis::precomputeGpData() {
+void grasping_tools::ObjectGpis::precomputeGpData() {
 	mCovarianceData = (*mGpKernel)(mDataPoints, true);
 	
 
@@ -132,7 +132,7 @@ void gpisGrasping::ObjectGpis::precomputeGpData() {
 }
 
 
-double gpisGrasping::ObjectGpis::closestDistanceData (const arma::vec &_point) {	// 666 TODO do it with kdtree!
+double grasping_tools::ObjectGpis::closestDistanceData (const arma::vec &_point) {	// 666 TODO do it with kdtree!
 	double minDist = 99999;
 	int minIdx = 0;
 	for (unsigned i = 0; i < mObservationPoints.n_cols; i++) {
@@ -145,6 +145,6 @@ double gpisGrasping::ObjectGpis::closestDistanceData (const arma::vec &_point) {
 	return minDist;
 };
 //---------------------------------------------------------------------------------------------------------------------
-arma::mat gpisGrasping::ObjectGpis::data() const {
+arma::mat grasping_tools::ObjectGpis::data() const {
 	return mDataPoints;
 }

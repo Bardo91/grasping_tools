@@ -10,7 +10,7 @@
 
 #include <armadillo>
 
-namespace gpisGrasping {
+namespace grasping_tools {
 	// Contact types.
 	enum eContactTypes {PFL, PWF, SFC};
 

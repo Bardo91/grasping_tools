@@ -10,7 +10,7 @@
 
 using namespace arma;
 
-namespace gpisGrasping {
+namespace grasping_tools {
 	//--------------------------------------------------------------------------------------------------------------------
 	void DistancePointConvexCone::basePoints(const mat & _A) {
 		mA = _A;

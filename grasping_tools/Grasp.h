@@ -14,7 +14,7 @@
 #include "ContactPoint.h"
 #include "Object.h"
 
-namespace gpisGrasping {
+namespace grasping_tools {
 	class Grasp {
 	public:
 		Grasp();

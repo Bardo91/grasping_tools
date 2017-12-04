@@ -13,7 +13,7 @@
 
 using namespace arma;
 
-namespace gpisGrasping {
+namespace grasping_tools {
 	//-----------------------------------------------------------------------------------------------------------------
 	ContactPoint::ContactPoint(const arma::colvec3 &_position, const arma::mat33 &_covPos, const arma::colvec3 &_n, const arma::mat33 &_covNormal, const eContactTypes _contactType, double _maxForce, double _friction, double _spinFriction) {
 		mPosition = _position;

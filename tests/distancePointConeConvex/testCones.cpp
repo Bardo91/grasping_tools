@@ -40,7 +40,7 @@ void test3dCone() {
 		coneA.insert_cols(coneA.n_cols, p);
 	}
 
-	gpisGrasping::DistancePointConvexCone distCone;
+	grasping_tools::DistancePointConvexCone distCone;
 	distCone.basePoints(coneA);
 	distCone.epsilon(epsilon);
 

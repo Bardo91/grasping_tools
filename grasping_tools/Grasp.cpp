@@ -23,7 +23,7 @@
 #include <libqhullcpp/QhullVertexSet.h>
 #include <cassert>
 
-namespace gpisGrasping {
+namespace grasping_tools {
 	//-----------------------------------------------------------------------------------------------------------------
 	Grasp::Grasp() {
 		mObjectCenter = arma::zeros(3, 1);

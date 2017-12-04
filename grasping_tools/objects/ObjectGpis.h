@@ -13,7 +13,7 @@
 #include <Sampler/Prior/Kernel.h>
 #include <Sampler/Prior/Mean.h>
 
-namespace gpisGrasping {
+namespace grasping_tools {
 	class ObjectGpis: public Object{
 	public:
 		/// Constructor Object GPIS 

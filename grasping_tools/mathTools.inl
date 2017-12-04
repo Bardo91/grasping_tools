@@ -7,7 +7,7 @@
 
 #include "mathTools.h"
 
-namespace gpisGrasping {
+namespace grasping_tools {
 	template<typename _vectorType>
 	inline std::vector<_vectorType> generateCombinationsVaryingSize(const _vectorType &_vec) {
 		std::vector<_vectorType> combinations;

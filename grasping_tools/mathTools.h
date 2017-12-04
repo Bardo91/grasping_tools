@@ -11,7 +11,7 @@
 #include <armadillo>
 #include <vector>
 
-namespace gpisGrasping {
+namespace grasping_tools {
 	//--------------------------------------------------------------------------------------------------------------------
 	/// Generate all possible combinations between the elements in the vector with varying size of combinations,
 	/// without repetitions and without order. Example:
