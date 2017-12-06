@@ -103,36 +103,81 @@ namespace grasping_tools {
 
 	//-----------------------------------------------------------------------------------------------------------------
 	bool intersectRayPlane(arma::colvec3 _p0, arma::colvec3 _p1, arma::colvec3 _v0, arma::colvec3 _n, arma::colvec3 &_intersection) {
-		double den = arma::dot(_n, (_p1 - _p0));
+        double den = arma::dot(_n, (_p1 - _p0));
 		if (den == 0) {
 			return false;
 		}
 		else {
 			double r = arma::dot(_n, (_v0 - _p0)) / den;
 			_intersection = _p0 + r*(_p1 - _p0);
+
+            //std::cout << "normal: " << _n.t()<<std::endl;
+            //std::cout << "line: " << (_p1-_p0).t()<<std::endl;
+            //std::cout << "intersection: " << _intersection.t()<< std::endl;
 			return true;
 		}
 	}
 
 	//-----------------------------------------------------------------------------------------------------------------
 	bool intersectRayTriangle(arma::colvec3 _p0, arma::colvec3 _p1, arma::colvec3 _v0, arma::colvec3 _v1, arma::colvec3 _v2, arma::colvec3 &_intersection) {
-		arma::colvec3 u = (_v1 - _v0);
-		arma::colvec3 v = (_v2 - _v0);
-		if (intersectRayPlane(_p0, _p1, _v1, arma::cross(u, v), _intersection)) {
-			arma::colvec3 w = (_intersection - _v0);
-			double s =	(arma::dot(u, v)*arma::dot(w, v) - arma::dot(v, v)*arma::dot(w, u)) /
-						(arma::dot(u, v)*arma::dot(u, v) - arma::dot(u, u)*arma::dot(v, v));
-			double t =	(arma::dot(u, v)*arma::dot(w, u) - arma::dot(u, u)*arma::dot(w, v)) /
-						(arma::dot(u, v)*arma::dot(u, v) - arma::dot(u, u)*arma::dot(v, v));
+        //arma::colvec3 u = (_v1 - _v0);
+        //arma::colvec3 v = (_v2 - _v0);
+        //
+        //arma::colvec3 n = arma::cross(u, v); n /= arma::norm(n);
+        //if (intersectRayPlane(_p0, _p1, _v1, n, _intersection)) {
+        //    arma::colvec3 w = (_intersection - _v0);
+        //
+        //	double s =	(arma::dot(u, v)*arma::dot(w, v) - arma::dot(v, v)*arma::dot(w, u)) /
+        //				(arma::dot(u, v)*arma::dot(u, v) - arma::dot(u, u)*arma::dot(v, v));
+        //	double t =	(arma::dot(u, v)*arma::dot(w, u) - arma::dot(u, u)*arma::dot(w, v)) /
+        //				(arma::dot(u, v)*arma::dot(u, v) - arma::dot(u, u)*arma::dot(v, v));
+        //
+        //	if (s >= 0 && t >= 0 && s + t <= 1) {
+        //		return true;
+        //	}else{
+        //		return false;
+        //	}
+        //}else {
+        //	return false;
+        //}
 
-			if (s >= 0 && t >= 0 && s + t <= 1) {
-				return true;
-			}else{
-				return false;
-			}
-		}else {
-			return false;
-		}
+        const float EPSILON = 0.0000001;
+        arma::colvec3 edge1 = _v1 - _v0;
+        arma::colvec3 edge2 = _v2 - _v0;
+        arma::colvec3 rayVector = _p1-_p0;
+
+
+        //std::cout << "edge1: " << edge1[0] << "," << edge1[1] << "," << edge1[2] <<std::endl;
+        //std::cout << "edge2: " << edge2[0] << "," << edge2[1] << "," << edge2[2] <<std::endl;
+        //std::cout << "rayVector: " << rayVector[0] << "," << rayVector[1] << "," << rayVector[2] <<std::endl;
+
+        arma::colvec3 h = arma::cross(rayVector, edge2);
+        float a = arma::dot(edge1, h);
+
+        if (a > -EPSILON && a < EPSILON)
+            return false;
+
+        float f = 1/a;
+        arma::colvec3 s = _p0 - _v0;
+
+        float u = f * (arma::dot(s,h));
+        if (u < 0.0 || u > 1.0)
+            return false;
+        arma::colvec3 q = arma::cross(s,edge1);
+
+        float v = f * arma::dot(rayVector, q);
+        if (v < 0.0 || u + v > 1.0)
+            return false;
+
+        // At this stage we can compute t to find out where the intersection point is on the line.
+        float t = f * arma::dot(edge2, q);
+        if (t > EPSILON){ // ray intersection
+            _intersection = _p0 + rayVector * t;
+            return true;
+        }
+        else {// This means that there is a line intersection but not a ray intersection.
+            return false;
+        }
 	}
 
 	//-----------------------------------------------------------------------------------------------------------------

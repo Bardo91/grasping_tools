@@ -35,7 +35,8 @@ namespace grasping_tools {
 		pcl::PolygonMesh mMeshBase;
 		pcl::PolygonMesh mLeftGripper;
 		pcl::PolygonMesh mRightGripper;
-	};
+        bool mLoadedModel = false;
+    };
 }
 
 #include "GripperHandTwoFingers.inl"

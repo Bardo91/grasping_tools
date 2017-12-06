@@ -19,22 +19,27 @@
 namespace grasping_tools {
 	GripperHandTwoFingers::GripperHandTwoFingers(double _aperture) {
 		mAperture = _aperture;
-        mModel = "/home/bardo91/programing/gpisGrasping/projects/grasping/hands/gripper/";
-		if (pcl::io::loadPolygonFileSTL(mModel + "base.stl", mMeshBase) == 0) {
-			PCL_ERROR("Failed to load STL file\n");
-		}
-		if (pcl::io::loadPolygonFileSTL(mModel + "leftGripper.stl", mLeftGripper) == 0) {
-			PCL_ERROR("Failed to load STL file\n");
-		}
-		if (pcl::io::loadPolygonFileSTL(mModel + "rightGripper.stl", mRightGripper) == 0) {
-			PCL_ERROR("Failed to load STL file\n");
-		}
+        //mModel = "/home/bardo91/programing/gpisGrasping/projects/grasping/hands/gripper/";
+        //
+        //if (pcl::io::loadPolygonFileSTL(mModel + "base.stl", mMeshBase) == 0) {
+        //    PCL_ERROR("Failed to load STL file\n");
+        //}
+        //if (pcl::io::loadPolygonFileSTL(mModel + "leftGripper.stl", mLeftGripper) == 0) {
+        //    PCL_ERROR("Failed to load STL file\n");
+        //}
+        //if (pcl::io::loadPolygonFileSTL(mModel + "rightGripper.stl", mRightGripper) == 0) {
+        //    PCL_ERROR("Failed to load STL file\n");
+        //}
 	}
 
 	pcl::PolygonMesh GripperHandTwoFingers::generateHandModel(const Grasp & _grasp, double _rotation) {
-		auto cps = _grasp.contactPoints();
+        auto cps = _grasp.contactPoints();
 		pcl::PointCloud<pcl::PointXYZ> finalMeshCloud;
 		pcl::PolygonMesh finalMesh;
+
+        if(!mLoadedModel){
+            return finalMesh;
+        }
 
 		// Compute aperture
 		arma::vec vAperture = cps[1].position() - cps[0].position();

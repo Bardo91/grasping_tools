@@ -16,6 +16,8 @@
 #include <pcl/kdtree/kdtree_flann.h>
 
 #include <vector>
+//#include <pcl/visualization/pcl_visualizer.h>
+
 
 namespace grasping_tools {
 	class ObjectMesh: public Object {
@@ -59,16 +61,24 @@ namespace grasping_tools {
 		/// \return point
         pcl::PointNormal vertex(int _id);
 
-		/// Get mesh info
+        /// Get mesh info
         void mesh(pcl::PointCloud<pcl::PointNormal> &_vertices, std::vector<pcl::Vertices> &_faces);
+
+        /// Get mesh info
+        void mesh(pcl::PolygonMesh &_mesh);
 
 	private:
         pcl::PointCloud<pcl::PointNormal> mVertices;
 		std::vector<pcl::Vertices> mFaces;
+        pcl::PolygonMesh mMesh;
 		arma::mat mCentroidFaces;
 		arma::colvec3 mCentroid;
 		bool mIsKdtreeInit = false;
         pcl::KdTreeFLANN<pcl::PointNormal> mKdTree;
+
+        //pcl::visualization::PCLVisualizer viewer;
+        //bool mStop = false;
+        //void callbackKeyboard3dViewer(const pcl::visualization::KeyboardEvent & _event, void * _ptrViewer) ;
 
 	};
 }	//	gpisGrasping

@@ -14,24 +14,26 @@
 #include <pcl/PCLPointCloud2.h>
 #include <pcl/common/centroid.h>
 
+#include <thread>
+#include <chrono>
+
 //---------------------------------------------------------------------------------------------------------------------
 grasping_tools::ObjectMesh::ObjectMesh(std::string _filename) {
-	// Load information from file.
-	pcl::PolygonMesh mesh;
+    // Load information from file.
 	if (_filename.find(".ply") != std::string::npos) {
-		if(pcl::io::loadPLYFile(_filename, mesh) != 0) {
+        if(pcl::io::loadPLYFile(_filename, mMesh) != 0) {
 			std::cerr << "Error loading mesh of object" << std::endl;
 			return;
 		}
 	}
 	else if (_filename.find(".obj") != std::string::npos) {
-		if (pcl::io::loadOBJFile(_filename, mesh) != 0) {
+        if (pcl::io::loadOBJFile(_filename, mMesh) != 0) {
 			std::cerr << "Error loading mesh of object" << std::endl;
 			return;
 		}
 	}
 	else if (_filename.find(".stl") != std::string::npos) {
-		if (pcl::io::loadPolygonFileSTL(_filename, mesh) == 0) {
+        if (pcl::io::loadPolygonFileSTL(_filename, mMesh) == 0) {
 			std::cerr << "Error loading mesh of object" << std::endl;
 			return;
 		}
@@ -43,8 +45,8 @@ grasping_tools::ObjectMesh::ObjectMesh(std::string _filename) {
 	}
 
 	// Transform cloud.
-	pcl::fromPCLPointCloud2(mesh.cloud, mVertices);
-	mFaces = mesh.polygons;
+    pcl::fromPCLPointCloud2(mMesh.cloud, mVertices);
+    mFaces = mMesh.polygons;
 
 	// Compute centroid.
 	Eigen::Vector4f centroid;
@@ -53,7 +55,16 @@ grasping_tools::ObjectMesh::ObjectMesh(std::string _filename) {
 	mCentroid[0] = centroid[0];
 	mCentroid[1] = centroid[1];
 	mCentroid[2] = centroid[2];
+
+    //viewer.registerKeyboardCallback(&grasping_tools::ObjectMesh::callbackKeyboard3dViewer,  *this, (void*)&viewer);
 }
+
+
+//void grasping_tools::ObjectMesh::callbackKeyboard3dViewer(const pcl::visualization::KeyboardEvent & _event, void * _ptrViewer) {
+//    if (_event.getKeySym() == "p" && _event.keyDown()) {
+//        mStop = false;
+//    }
+//}
 
 //---------------------------------------------------------------------------------------------------------------------
 grasping_tools::ObjectMesh::ObjectMesh(pcl::PointCloud<pcl::PointNormal>& _vertices, std::vector<pcl::Vertices>& _faces) {
@@ -64,7 +75,7 @@ grasping_tools::ObjectMesh::ObjectMesh(pcl::PointCloud<pcl::PointNormal>& _verti
 	Eigen::Vector4f centroid;
 	pcl::compute3DCentroid(mVertices, centroid);
 
-	mCentroid[0] = centroid[0];
+    mCentroid[0] = centroid[0];
 	mCentroid[1] = centroid[1];
 	mCentroid[2] = centroid[2];
 }
@@ -95,6 +106,7 @@ arma::colvec3 grasping_tools::ObjectMesh::intersect(arma::colvec3 _initPoint, ar
 		auto v1 = mVertices[face.vertices[0]];
 		auto v2 = mVertices[face.vertices[1]];
 		auto v3 = mVertices[face.vertices[2]];
+
 		arma::colvec3 intersection;
 		if (intersectRayTriangle(_initPoint, _initPoint + _dir, { v1.x,v1.y,v1.z }, { v2.x,v2.y,v2.z }, { v3.x,v3.y,v3.z }, intersection)) {
 			double dist = arma::norm(_initPoint - intersection);
@@ -116,12 +128,42 @@ arma::mat grasping_tools::ObjectMesh::intersectRay(arma::colvec3 _p1, arma::colv
     for (auto &face : mFaces) { // 666 TODO pending parallelization
 		auto v1 = mVertices[face.vertices[0]];
 		auto v2 = mVertices[face.vertices[1]];
-		auto v3 = mVertices[face.vertices[2]];
+        auto v3 = mVertices[face.vertices[2]];
+
+        //viewer.removeAllPointClouds();
+        //viewer.removeAllShapes();
+        //pcl::PointCloud<pcl::PointXYZ> cloud;
+        //cloud.push_back(pcl::PointXYZ(v1.x, v1.y, v1.z));
+        //cloud.push_back(pcl::PointXYZ(v2.x, v2.y, v2.z));
+        //cloud.push_back(pcl::PointXYZ(v3.x, v3.y, v3.z));
+        //viewer.addLine(cloud[0], cloud[1], "line1");
+        //viewer.addLine(cloud[0], cloud[2], "line2");
+        //viewer.addLine(cloud[1], cloud[2], "line3");
+        //viewer.addPointCloud<pcl::PointXYZ>(cloud.makeShared());
+        //viewer.spinOnce(30);
+        //
+        //pcl::PointXYZ p0(_p1[0],_p1[1],_p1[2]);
+        //pcl::PointXYZ p1(_p2[0],_p2[1],_p2[2]);
+        //viewer.addLine(p0,p1, "line");
 
 		arma::colvec3 intersection;
-        if (intersectRayTriangle(_p1, _p2, {v1.x,v1.y,v1.z}, { v2.x,v2.y,v2.z }, { v3.x,v3.y,v3.z }, intersection)) {
-            intersections.insert_cols(intersections.n_cols, intersection);
+        arma::colvec ver1 = {v1.x,v1.y,v1.z}, ver2 = { v2.x,v2.y,v2.z }, ver3 = { v3.x,v3.y,v3.z };
+        if (intersectRayTriangle(_p1, _p2, ver1, ver2, ver3, intersection)) {
+            arma::colvec6 point;
+            point.head(3) = intersection;
+            point.tail(3) = -arma::cross(ver2-ver3,ver1-ver3);
+            point.tail(3) /= arma::norm(point.tail(3));
+            intersections.insert_cols(intersections.n_cols, point);
+            //viewer.addSphere(pcl::PointXYZ(intersection[0], intersection[1], intersection[2]), 0.05, 0.5, 0.0, 0.0);
 		}
+
+        //std::cout << intersections << std::endl;
+        //mStop = true;
+        //while(mStop){
+        //    viewer.spinOnce(30);
+        //    std::this_thread::sleep_for(std::chrono::milliseconds(30));
+        //}
+        //std::cout <<  "Found: " << intersections.n_cols << std::endl;
 
 	}
 	return intersections;
@@ -131,22 +173,17 @@ arma::mat grasping_tools::ObjectMesh::intersectRay(arma::colvec3 _p1, arma::colv
 arma::mat grasping_tools::ObjectMesh::centroidFaces() {
 	if (mCentroidFaces.n_cols == 0) {
 		for (auto &face : mFaces) {
-			auto p1 = mVertices[face.vertices[0]];
-			auto p2 = mVertices[face.vertices[1]];
-            auto p3 = mVertices[face.vertices[2]];
+            auto pclP1 = mVertices[face.vertices[0]];
+            auto pclP2 = mVertices[face.vertices[1]];
+            auto pclP3 = mVertices[face.vertices[2]];
 
-			arma::colvec6 point;
-            point[0] = ( p1.x + p2.x + p3.x )/3;
-            point[1] = ( p1.y + p2.y + p3.y )/3;
-            point[2] = ( p1.z + p2.z + p3.z )/3;
+            arma::colvec6 point;
+            arma::colvec3 p1 = {pclP1.x, pclP1.y, pclP1.z};
+            arma::colvec3 p2 = {pclP2.x, pclP2.y, pclP2.z};
+            arma::colvec3 p3 = {pclP3.x, pclP3.y, pclP3.z};
 
-            point[3] = ( p1.normal_x + p2.normal_x + p3.normal_x )/3;
-            point[4] = ( p1.normal_y + p2.normal_y + p3.normal_y )/3;
-            point[5] = ( p1.normal_z + p2.normal_z + p3.normal_z )/3;
-
-            point[3] /= arma::norm(point.rows(3,5));
-            point[4] /= arma::norm(point.rows(3,5));
-            point[5] /= arma::norm(point.rows(3,5));
+            point.subvec(0,2) = (p1+p2+p3)/3;
+            point.subvec(3,5) = -arma::cross(p2-p3,p1-p3);
 
             mCentroidFaces.insert_cols(mCentroidFaces.n_cols, point);
 		}
@@ -183,4 +220,10 @@ pcl::PointNormal grasping_tools::ObjectMesh::vertex(int _id) {
 void grasping_tools::ObjectMesh::mesh(pcl::PointCloud<pcl::PointNormal>& _vertices, std::vector<pcl::Vertices>& _faces) {
 	_vertices = mVertices;
 	_faces = mFaces;
+}
+
+
+//---------------------------------------------------------------------------------------------------------------------
+void grasping_tools::ObjectMesh::mesh(pcl::PolygonMesh &_mesh){
+    _mesh = mMesh;
 }
