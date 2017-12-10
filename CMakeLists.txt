@@ -89,7 +89,15 @@ target_include_directories(${PROJECT_NAME} PUBLIC "dep/gpis/gpis")
 target_link_libraries(${PROJECT_NAME} LINK_PUBLIC gpis)
 
 target_include_directories(${PROJECT_NAME} PUBLIC "dep/qhull/src")
-target_link_libraries(${PROJECT_NAME} LINK_PUBLIC qhull)
+if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+    target_link_libraries(${PROJECT_NAME} LINK_PUBLIC qhullcpp_d)
+    target_link_libraries(${PROJECT_NAME} LINK_PUBLIC qhullstatic_rd)
+else()
+    target_link_libraries(${PROJECT_NAME} LINK_PUBLIC qhullcpp)
+    target_link_libraries(${PROJECT_NAME} LINK_PUBLIC qhullstatic_r)
+endif()
+
+target_link_libraries(${PROJECT_NAME} LINK_PUBLIC ${qhull_STATIC})
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${ARMADILLO_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} LINK_PUBLIC ${ARMADILLO_LIBRARIES})

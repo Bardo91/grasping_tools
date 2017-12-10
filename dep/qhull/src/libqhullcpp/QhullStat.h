@@ -1,24 +1,22 @@
 /****************************************************************************
 **
-** Copyright (c) 2008-2012 C.B. Barber. All rights reserved.
-** $Id: //main/2011/qhull/src/libqhullcpp/QhullStat.h#6 $$Change: 1464 $
-** $DateTime: 2012/01/25 22:58:41 $$Author: bbarber $
+** Copyright (c) 2008-2015 C.B. Barber. All rights reserved.
+** $Id: //main/2015/qhull/src/libqhullcpp/QhullStat.h#2 $$Change: 2079 $
+** $DateTime: 2016/02/07 17:43:34 $$Author: bbarber $
 **
 ****************************************************************************/
 
 #ifndef QHULLSTAT_H
 #define QHULLSTAT_H
 
-extern "C" {
-    #include "libqhull/qhull_a.h"
-}
+#include "libqhull_r/qhull_ra.h"
 
 #include <string>
 #include <vector>
 
 namespace orgQhull {
 
-#//defined here
+#//!\name defined here
     //! QhullStat -- Qhull's statistics, qhstatT, as a C++ class
     //! Statistics defined with zzdef_() control Qhull's behavior, summarize its result, and report precision problems.
     class QhullStat;
@@ -26,25 +24,24 @@ namespace orgQhull {
 class QhullStat : public qhstatT {
 
 private:
-#//Fields (empty) -- POD type equivalent to qhstatT.  No data or virtual members
+#//!\name Fields (empty) -- POD type equivalent to qhstatT.  No data or virtual members
 
 public:
-#//Constants
+#//!\name Constants
 
-#//class methods
-    static void         clearStatistics();
+#//!\name class methods
 
-#//constructor, assignment, destructor, invariant
+#//!\name constructor, assignment, destructor, invariant
                         QhullStat();
-                       ~QhullStat();
+                        ~QhullStat();
 
 private:
     //!disable copy constructor and assignment
                         QhullStat(const QhullStat &);
-    QhullStat          &operator=(const QhullStat &);
+    QhullStat &         operator=(const QhullStat &);
 public:
 
-#//Access
+#//!\name Access
 };//class QhullStat
 
 }//namespace orgQhull
