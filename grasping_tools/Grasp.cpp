@@ -228,63 +228,58 @@ namespace grasping_tools {
 
             }
             points.append(concatenationPoints);
+            try {
+                orgQhull::Qhull convexHull("", 6, wrenchesCones.n_cols, &concatenationPoints[0], "Qt");
+                orgQhull::QhullFacetList facets = convexHull.facetList();
+                double minDistance = 99999999;
+                int minIdx = 0;
+                int counterIdx = 0;
+                orgQhull::PointCoordinates originCoordinates(6, "wrenches origin");
+                std::vector<double> originstd = { 0.0,0.0,0.0,0.0,0.0,0.0, };
+                originCoordinates.append(originstd);
 
-            orgQhull::Qhull convexHull("", 6, wrenchesCones.n_cols, &concatenationPoints[0], "Qt");
-            //try {
-            //    convexHull.runQhull(points, "Qt");
-            //}
-            //catch (orgQhull::QhullError e) {
-            //    std::cout << "Error computing convex hull. Error msg: \n" << e.what()  << std::endl;
-            //    mLmrw = 0;
-            //    mHasForceClosure = false;
-            //    return mLmrw;
-            //}
+                orgQhull::QhullPoint origin6d(6, &originstd[0]);
+                //std::cout << "Num of facets of CH is " << facets.size() << std::endl;
+                for (orgQhull::QhullFacetList::iterator it = facets.begin(); it != facets.end(); ++it) {
+                    orgQhull::QhullFacet f = *it;
+                    if (!f.isGood()) continue;
+                    orgQhull::QhullHyperplane hyperPlane = f.hyperplane();
+                    double distance = hyperPlane.distance(origin6d);
+                    if (distance > 0) {
+                        //std::cout << "ERROR! Origin is not contained in the QH" << std::endl;
+                        minDistance = 0.0;
+                        break;
+                    }else{
+                        distance *= -1;
+                    }
 
-            orgQhull::QhullFacetList facets = convexHull.facetList();
-            double minDistance = 99999999;
-            int minIdx = 0;
-            int counterIdx = 0;
-            orgQhull::PointCoordinates originCoordinates(6, "wrenches origin");
-            std::vector<double> originstd = { 0.0,0.0,0.0,0.0,0.0,0.0, };
-            originCoordinates.append(originstd);
-
-            orgQhull::QhullPoint origin6d(6, &originstd[0]);
-            //std::cout << "Num of facets of CH is " << facets.size() << std::endl;
-            for (orgQhull::QhullFacetList::iterator it = facets.begin(); it != facets.end(); ++it) {
-                orgQhull::QhullFacet f = *it;
-                if (!f.isGood()) continue;
-                orgQhull::QhullHyperplane hyperPlane = f.hyperplane();
-                double distance = hyperPlane.distance(origin6d);
-                if (distance > 0) {
-                    //std::cout << "ERROR! Origin is not contained in the QH" << std::endl;
-                    minDistance = 0.0;
-                    break;
-                }else{
-                    distance *= -1;
+                    // From Qhull, negative distances means that point is inside and positive that is outside.
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        minIdx = counterIdx;
+                    }
+                    counterIdx++;
                 }
 
-                // From Qhull, negative distances means that point is inside and positive that is outside.
-                if (distance < minDistance) {
-                    minDistance = distance;
-                    minIdx = counterIdx;
+                mLmrw = minDistance;
+
+                if (mLmrw <= 0.0) {
+                    mHasForceClosure = false;
                 }
-                counterIdx++;
-            }
+                else {
+                    mHasForceClosure = true;
+                }
 
-            mLmrw = minDistance;
+                mComputedForceClosure = true;
+                mComputedLmrw = true;
 
-            if (mLmrw <= 0.0) {
+                return mLmrw;
+            }catch (orgQhull::QhullError e) {
+                std::cout << "Error computing convex hull. Error msg: \n" << e.what()  << std::endl;
+                mLmrw = 0;
                 mHasForceClosure = false;
+                return mLmrw;
             }
-            else {
-                mHasForceClosure = true;
-            }
-
-            mComputedForceClosure = true;
-            mComputedLmrw = true;
-
-            return mLmrw;
-            return 0;
         }
 	}
 
