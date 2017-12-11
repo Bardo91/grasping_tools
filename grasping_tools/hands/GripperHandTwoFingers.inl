@@ -22,9 +22,9 @@ namespace grasping_tools {
         double minY = arma::min(data.row(1)), maxY = arma::max(data.row(1));
         double minZ = arma::min(data.row(2)), maxZ = arma::max(data.row(2));
 
-        double radius = std::max(std::max(fabs(maxX - minX) * 1.5,
-                            fabs(maxY - minY) * 1.5),
-                            fabs(maxZ - minZ) * 1.5);
+        double radius = std::max(std::max(fabs(maxX - minX) * 3,
+                            fabs(maxY - minY) * 3),
+                            fabs(maxZ - minZ) * 3);
 
 		arma::colvec3 initPoint = generateRandomPointSphere(center, radius);
 		// Get point on surface - line thought center
@@ -45,7 +45,7 @@ namespace grasping_tools {
 
 		// Get opposite point
 		p0 = _object.center();
-		p1 = _object.center() - (initPoint-_object.center());
+        p1 = _object.center() - 2*(cpPos1-_object.center());
 		do {
 			arma::colvec3 newPoint = (p1 + p0) / 2;
 			double val = _object.evaluate(newPoint);
