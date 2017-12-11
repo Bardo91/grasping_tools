@@ -6,6 +6,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "ObjectGpis.h"
+#include <gpis/Utils/SurfaceGpis.h>
 
 //---------------------------------------------------------------------------------------------------------------------
 grasping_tools::ObjectGpis::ObjectGpis(const arma::mat & _dataPoints, gpis::Mean * _gpMean, gpis::Kernel * _gpKernel, const arma::vec &_gpMeanParams):
@@ -18,7 +19,7 @@ grasping_tools::ObjectGpis::ObjectGpis(const arma::mat & _dataPoints, gpis::Mean
 }
 
 //---------------------------------------------------------------------------------------------------------------------
-grasping_tools::ObjectGpis::ObjectGpis(const arma::mat &_dataPoints, const arma::mat &_observations, gpis::Mean *_gpMean, gpis::Kernel *_gpKernel, const arma::vec &_gpMeanParams, double &_sigmaData):
+grasping_tools::ObjectGpis::ObjectGpis(const arma::mat &_dataPoints, const arma::mat &_observations, gpis::Mean *_gpMean, gpis::Kernel *_gpKernel, const arma::vec &_gpMeanParams, double _sigmaData):
 	mDataPoints(_dataPoints.rows(0, 2)),
 	mObservationPoints(_observations),
 	mSigmaAlignment(_sigmaData),
@@ -76,7 +77,6 @@ void grasping_tools::ObjectGpis::evaluate(const arma::vec3 & _point, arma::colve
 //---------------------------------------------------------------------------------------------------------------------
 void grasping_tools::ObjectGpis::precomputeGpData() {
 	mCovarianceData = (*mGpKernel)(mDataPoints, true);
-	
 
 	// Check if model is aligned, i.e., if has observations and stdDev and add the varying noise.
 	if (mObservationPoints.n_cols != 0) {
@@ -143,8 +143,19 @@ double grasping_tools::ObjectGpis::closestDistanceData (const arma::vec &_point)
 		}
 	}
 	return minDist;
-};
+}
+
 //---------------------------------------------------------------------------------------------------------------------
 arma::mat grasping_tools::ObjectGpis::data() const {
 	return mDataPoints;
+}
+
+//---------------------------------------------------------------------------------------------------------------------
+void grasping_tools::ObjectGpis::mesh(pcl::PointCloud<pcl::PointXYZ> &_vertices, std::vector<pcl::Vertices> &_faces){
+
+}
+
+//---------------------------------------------------------------------------------------------------------------------
+void grasping_tools::ObjectGpis::mesh(pcl::PolygonMesh &_mesh){
+
 }

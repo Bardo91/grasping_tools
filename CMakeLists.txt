@@ -85,7 +85,7 @@ set(PROJECT_NAME grasping_tools)
 add_library(${PROJECT_NAME} STATIC ${GRASPTOOLS_SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/grasping_tools)
 
-target_include_directories(${PROJECT_NAME} PUBLIC "dep/gpis/gpis")
+target_include_directories(${PROJECT_NAME} PUBLIC "dep/gpis")
 target_link_libraries(${PROJECT_NAME} LINK_PUBLIC gpis)
 
 target_include_directories(${PROJECT_NAME} PUBLIC "dep/qhull/src")

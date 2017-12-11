@@ -18,14 +18,13 @@ namespace grasping_tools {
 		arma::colvec3 center = _object.center();
 		arma::mat data = _object.data();
 
-		double minX = min(data.row(0)), maxX = max(data.row(0));
-		double minY = min(data.row(1)), maxY = max(data.row(1));
-		double minZ = min(data.row(2)), maxZ = max(data.row(2));
-		arma::vec possibleRadius = { abs(maxX - minX) * 1.5,
-			abs(maxY - minY) * 1.5,
-			abs(maxZ - minZ) * 1.5 };
+        double minX = arma::min(data.row(0)), maxX = arma::max(data.row(0));
+        double minY = arma::min(data.row(1)), maxY = arma::max(data.row(1));
+        double minZ = arma::min(data.row(2)), maxZ = arma::max(data.row(2));
 
-		double radius = max(possibleRadius);
+        double radius = std::max(std::max(fabs(maxX - minX) * 1.5,
+                            fabs(maxY - minY) * 1.5),
+                            fabs(maxZ - minZ) * 1.5);
 
 		arma::colvec3 initPoint = generateRandomPointSphere(center, radius);
 		// Get point on surface - line thought center
@@ -67,14 +66,14 @@ namespace grasping_tools {
 		//std::cout << "pos1: " << cpPos1.t();
 		// Normalize normal from GPIS
 		values.tail(3) /= norm(values.tail(3));
-		cps.push_back(ContactPoint(cpPos1, arma::eye(3, 3)*covariances(0, 0), values.tail(3), covariances.submat(1, 1, 3, 3), eContactTypes::SFC, 1, 0.4, 0.4));
+        cps.push_back(ContactPoint(cpPos1, arma::eye(3, 3)*covariances(0, 0), values.tail(3), covariances.submat(1, 1, 3, 3), eContactTypes::SFC, 1, 1, 1));
 
 		_object.evaluate(cpPos2, values, covariances);
 		//std::cout << "normal 2: " << values.tail(3).t() << ". Norm: " << norm(values.tail(3)) << std::endl;
 		//std::cout << "pos2: " << cpPos2.t();
 		// Normalize normal from GPIS
 		values.tail(3) /= norm(values.tail(3));
-		cps.push_back(ContactPoint(cpPos2, arma::eye(3, 3)*covariances(0, 0), values.tail(3), covariances.submat(1, 1, 3, 3), eContactTypes::SFC, 1, 0.4, 0.4));
+        cps.push_back(ContactPoint(cpPos2, arma::eye(3, 3)*covariances(0, 0), values.tail(3), covariances.submat(1, 1, 3, 3), eContactTypes::SFC, 1, 1, 1));
 
 		Grasp grasp;
 		grasp.contactPoints(cps);
