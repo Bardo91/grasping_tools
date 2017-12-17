@@ -5,9 +5,9 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "../objects/ObjectGpis.h"
-#include "mathTools.h"
-#include <Grasp.h>
+#include <grasping_tools/objects/ObjectGpis.h>
+#include <grasping_tools/mathTools.h>
+#include <grasping_tools/Grasp.h>
 #include <cassert>
 
 namespace grasping_tools {

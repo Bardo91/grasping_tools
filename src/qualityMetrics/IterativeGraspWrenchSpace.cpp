@@ -7,9 +7,9 @@
 
 #include <cassert>
 
-#include "IterativeGraspWrenchSpace.h"
-#include "mathTools.h"
-#include "DistancePointConvexCone.h"
+#include <grasping_tools/qualityMetrics/IterativeGraspWrenchSpace.h>
+#include <grasping_tools/qualityMetrics/DistancePointConvexCone.h>
+#include <grasping_tools/mathTools.h>
 
 using namespace arma;
 using namespace std;

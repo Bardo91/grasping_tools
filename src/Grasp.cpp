@@ -5,10 +5,10 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "Grasp.h"
-#include "mathTools.h"
-#include "qualityMetrics/DistancePointConvexCone.h"
-#include "qualityMetrics/IterativeGraspWrenchSpace.h"
+#include <grasping_tools/Grasp.h>
+#include <grasping_tools/mathTools.h>
+#include <grasping_tools/qualityMetrics/DistancePointConvexCone.h>
+#include <grasping_tools/qualityMetrics/IterativeGraspWrenchSpace.h>
 
 #include <libqhullcpp/Qhull.h>
 #include <libqhullcpp/RboxPoints.h>

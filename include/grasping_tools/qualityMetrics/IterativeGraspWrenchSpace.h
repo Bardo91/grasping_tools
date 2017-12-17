@@ -11,8 +11,8 @@
 #include <armadillo>
 #include <vector>
 
-#include "ContactPoint.h"
-#include "Grasp.h"
+#include <grasping_tools/ContactPoint.h>
+#include <grasping_tools/Grasp.h>
 
 namespace grasping_tools {
 	/// Based on the article "An efficient Algorithm for a Grasp Quality Measure" by Yu Zheng.

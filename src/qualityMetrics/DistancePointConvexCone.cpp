@@ -5,8 +5,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "DistancePointConvexCone.h"
-#include "mathTools.h"
+#include <grasping_tools/qualityMetrics/DistancePointConvexCone.h>
+#include <grasping_tools/mathTools.h>
 
 using namespace arma;
 

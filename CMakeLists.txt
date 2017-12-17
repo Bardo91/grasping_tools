@@ -44,6 +44,11 @@ endmacro()
 
 GroupSources(grasping_tools)
 
+if(NOT EXIST ${CMAKE_BUILD_TYPE})
+set(CMAKE_BUILD_TYPE Release)
+endif(NOT EXIST ${CMAKE_BUILD_TYPE})
+
+
 #########################################
 ###### Loading 3rd party libraries.######
 #########################################
@@ -66,6 +71,14 @@ else()
 	MESSAGE( FATAL_ERROR "Couldnt Add PCL and/or it's dependencies")
 endif()
 
+find_package(catkin)
+if(${catkin_FOUND})
+	catkin_package(
+	  	CATKIN_DEPENDS roscpp
+		INCLUDE_DIRS include
+	)
+endif(${catkin_FOUND})
+
 #########################################
 ######			Compile extra Libraries 		   ######
 #########################################
@@ -78,12 +91,11 @@ add_subdirectory(dep/gpis)
 #########################################
 
 # Collect all sources
-file(GLOB_RECURSE GRASPTOOLS_SOURCE_FILES "grasping_tools/*.cpp" "grasping_tools/*.h" "grasping_tools/*.inl")
+file(GLOB_RECURSE GRASPTOOLS_SOURCE_FILES "src/*.cpp")
+file(GLOB_RECURSE GRASPTOOLS_HEADER_FILES "include/*.h" "include/*.inl")
 
-set(PROJECT_NAME grasping_tools)
-
-add_library(${PROJECT_NAME} STATIC ${GRASPTOOLS_SOURCE_FILES})
-target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/grasping_tools)
+add_library(${PROJECT_NAME} STATIC ${GRASPTOOLS_SOURCE_FILES} ${GRASPTOOLS_HEADER_FILES})
+target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
 target_include_directories(${PROJECT_NAME} PUBLIC "dep/gpis")
 target_link_libraries(${PROJECT_NAME} LINK_PUBLIC gpis)
