@@ -275,7 +275,7 @@ namespace grasping_tools {
 
                 return mLmrw;
             }catch (orgQhull::QhullError e) {
-                std::cout << "Error computing convex hull. Error msg: \n" << e.what()  << std::endl;
+                std::cout << "Error computing convex hull. Error msg: \n" <<std::endl; //<< e.what()  << std::endl;
                 mLmrw = 0;
                 mHasForceClosure = false;
                 return mLmrw;
