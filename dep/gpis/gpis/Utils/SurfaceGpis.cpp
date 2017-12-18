@@ -8,6 +8,7 @@
 
 #include "SurfaceGpis.h"
 #include <pcl/visualization/pcl_visualizer.h>
+#include <chrono>
 
 using namespace arma;
 using namespace pcl;
@@ -43,8 +44,18 @@ namespace gpis {
 		}
 	}
 
+	bool SurfaceGpis::checkTimeLimit(double _maxSeconds){
+		auto t1 = std::chrono::high_resolution_clock::now();
+		double timeSpent = double(std::chrono::duration_cast<std::chrono::milliseconds>(t1-mT0).count())/1000.0;
+		if(timeSpent > _maxSeconds)
+			return true;
+		else
+			return false;
+	}
+
 	//--------------------------------------------------------------------------------------------------------------------
-	bool SurfaceGpis::compute(const arma::vec &_priorParameters, mat _initPoints, double _minDist, unsigned _maxIters, pcl::visualization::PCLVisualizer *_viewer) {
+	bool SurfaceGpis::compute(const arma::vec &_priorParameters, mat _initPoints, double _minDist, unsigned _maxIters, double _maxSeconds, pcl::visualization::PCLVisualizer *_viewer) {
+		mT0 = std::chrono::high_resolution_clock::now();
 		if (_viewer) { // Plot data points
 			pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> colorData(mCloudData.makeShared(), 255, 0, 0);
 			_viewer->addPointCloud(mCloudData.makeShared(), colorData, "DataPoints");
@@ -86,8 +97,7 @@ namespace gpis {
 		Vertices triangle;
 		Frontier initialFrontier;
 		vector<Frontier> frontiers;
-		for (unsigned i = 0; i < _initPoints.n_cols; i++)
-		{
+		for (unsigned i = 0; i < _initPoints.n_cols; i++) {
 			vector<unsigned> indices = {3*i, 3*i + 1, 3*i + 2};
 			initFrontier(_initPoints.col(i), f, _minDist, indices, x, gradX, initialFrontier);
 			frontiers.push_back(initialFrontier);
@@ -103,9 +113,15 @@ namespace gpis {
 		// Iterate while exist frontiers
 		unsigned  iters = 0;
 		while (frontiers.size() != 0 && iters < _maxIters) {
+			if(checkTimeLimit(_maxSeconds))
+				return false;
+
 			iters++;
 			// Iterate over frontiers
 			for (auto iter = frontiers.begin(); iter != frontiers.end();) {
+				if(checkTimeLimit(_maxSeconds))
+					return false;
+
 				// Get active edge
 				unsigned index1 = iter->mIndices.back();
 				unsigned index2 = iter->mIndices.front();
@@ -156,6 +172,8 @@ namespace gpis {
 						bool intersectWithOther = false;
 						vector<Frontier>::iterator iter2;
 						for (iter2 = frontiers.begin(); iter2 != frontiers.end(); iter2++) {
+							if(checkTimeLimit(_maxSeconds))
+								return false;
 							if (iter != iter2) {
 								nearIndex = checkDistance(candidate, x, _minDist, iter2->mIndices);
 								if (nearIndex != -1) {
@@ -269,6 +287,8 @@ namespace gpis {
 			}
 
 			for (auto iter = frontiers.begin(); iter != frontiers.end();) {
+				if(checkTimeLimit(_maxSeconds))
+					return false;
 				if (iter->mIndices.size() < 3) {
 					iter = frontiers.erase(iter);
 				}
@@ -308,7 +328,14 @@ namespace gpis {
 		_cloud = mCloud;
 		_polygons = mPolygons;
 	}
-	
+
+	//--------------------------------------------------------------------------------------------------------------------
+	void SurfaceGpis::mesh(pcl::PolygonMesh &_mesh) const{
+		_mesh.polygons = mPolygons;
+        pcl::toPCLPointCloud2(mCloud, _mesh.cloud);
+
+	}
+
 	//--------------------------------------------------------------------------------------------------------------------
 	void SurfaceGpis::colorMap(double _val, double &_r, double &_g, double &_b) const {
 		if(std::isnan(_val)){
