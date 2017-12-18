@@ -311,8 +311,15 @@ namespace gpis {
 	
 	//--------------------------------------------------------------------------------------------------------------------
 	void SurfaceGpis::colorMap(double _val, double &_r, double &_g, double &_b) const {
-		double size = cParulaMap.size() / 3;
+		if(std::isnan(_val)){
+			_val = 1;
+		}else{
+			_val = _val<0?0:_val;
+			_val = _val>1?1:_val;
+		}
+		double size = (cParulaMap.size()) / 3;
 		int idx = int(size*_val);
+
 		_r = cParulaMap[idx * 3];
 		_g = cParulaMap[idx * 3+1];
 		_b = cParulaMap[idx * 3+2];
