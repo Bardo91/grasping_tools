@@ -147,7 +147,9 @@ double grasping_tools::ObjectGpis::closestDistanceData (const arma::vec &_point)
 
 //---------------------------------------------------------------------------------------------------------------------
 arma::mat grasping_tools::ObjectGpis::data() const {
-	return mDataPoints;
+	arma::mat data = mDataPoints;
+	data.insert_rows(data.n_rows, mDataNormals);
+	return data;
 }
 
 //---------------------------------------------------------------------------------------------------------------------
