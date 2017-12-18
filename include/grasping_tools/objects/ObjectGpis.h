@@ -8,7 +8,7 @@
 #ifndef GPISGRASPING_OBJECTGPIS_H_
 #define GPISGRASPING_OBJECTGPIS_H_
 
-#include "../Object.h"
+#include <grasping_tools/Object.h>
 
 #include <Sampler/Prior/Kernel.h>
 #include <Sampler/Prior/Mean.h>

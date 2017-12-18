@@ -8,7 +8,7 @@
 #ifndef GPISGRASPING_HANDS_SIMPLEHANDTWOFINGERS_H_
 #define GPISGRASPING_HANDS_SIMPLEHANDTWOFINGERS_H_
 
-#include"../Hand.h"
+#include <grasping_tools/Hand.h>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 namespace grasping_tools {

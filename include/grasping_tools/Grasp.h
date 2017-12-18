@@ -11,8 +11,8 @@
 #include <armadillo>
 #include <vector>
 
-#include "ContactPoint.h"
-#include "Object.h"
+#include <grasping_tools/ContactPoint.h>
+#include <grasping_tools/Object.h>
 
 namespace grasping_tools {
 	class Grasp {

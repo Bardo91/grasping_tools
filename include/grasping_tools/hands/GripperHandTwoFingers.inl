@@ -5,10 +5,10 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include <objects/ObjectGpis.h>
-#include <objects/ObjectMesh.h>
-#include <Grasp.h>
-#include <mathTools.h>
+#include <grasping_tools/objects/ObjectGpis.h>
+#include <grasping_tools/objects/ObjectMesh.h>
+#include <grasping_tools/Grasp.h>
+#include <grasping_tools/mathTools.h>
 #include <deque>
 
 namespace grasping_tools {
