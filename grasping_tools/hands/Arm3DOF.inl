@@ -141,16 +141,39 @@ namespace grasping_tools {
 
         arma::mat intersections = _object.intersectRay(candidatePoint.rows(0, 2)+ 2*candidatePoint.rows(3, 5), candidatePoint.rows(0, 2) - candidatePoint.rows(3, 5));
 
-        //std::cout << " Matriz intersection: " << intersections << std::endl;
+        //std::cout << " Matriz intersections: " << intersections << std::endl;
 
-        for(unsigned int i = 0; i < intersections.n_cols; i++){
+        arma::colvec3 puntoMedio = { (intersections(0,0) + intersections(0,1))/2, (intersections(1,0) + intersections(1,1))/2, (intersections(2,0) + intersections(2,1))/2 };
+
+        std::vector<double> auxRadio(3);
+        auxRadio.at(0) = (intersections(0,1) - intersections(0,0))*(intersections(0,1) - intersections(0,0));
+        auxRadio.at(1) = (intersections(1,1) - intersections(1,0))*(intersections(1,1) - intersections(1,0));
+        auxRadio.at(2) = (intersections(2,1) - intersections(2,0))*(intersections(2,1) - intersections(2,0));
+
+        double radioPuntos = sqrt(auxRadio.at(0) + auxRadio.at(1) + auxRadio.at(2))/2;
+
+        // azimut y zenit????
 
 
-            // Calculate inverse kinematic for centroid point
+
+        int npCircle = 20;
+        arma::mat puntosCirculo(3, npCircle);
+        puntosCirculo = pointsInCircle(radioPuntos, puntoMedio, , , npCircle);
+
+        // Como saber la mitad del circulo con los puntos que debemos coger???
+
+
+
+
+        std::vector<double> validPoints;
+
+        for(unsigned int i = 0; i < ; i++){
+
+            // Calculate inverse kinematic for points
             std::vector<int> IKArm(3);
-            float valx = intersections.at(0,i);
-            float valy = intersections.at(1,i);
-            float valz = intersections.at(2,i);
+            float valx = ;
+            float valy = ;
+            float valz = ;
 
 
             IKArm.at(0) = atan2(valy, valx);
@@ -177,8 +200,9 @@ namespace grasping_tools {
             // If these point is a valid angle for Workspace Arm, add it to ContactPoint
             if((IKArm.at(0)>=(-90*M_PI/180) && IKArm.at(0)<=(90*M_PI/180)) && (IKArm.at(1)>=(-90*M_PI/180) && IKArm.at(1)<=(90*M_PI/180)) && (IKArm.at(2)>=(-90*M_PI/180) && IKArm.at(2)<=(90*M_PI/180)) ){
                 std::cout << "Valid point" << std::endl;
-                ContactPoint cp(intersections.col(i).head(3), arma::eye(3, 3), intersections.col(i).tail(3), arma::eye(3, 3), eContactTypes::SFC, 1, 1, 1);
-                cps.push_back(cp);
+            
+
+                validPoints.push_back( );
             }
             else{
                 std::cout << "Invalid point" << std::endl;
@@ -186,7 +210,31 @@ namespace grasping_tools {
             
         }
 
-        grasp.contactPoints(cps);
+        // De los que obtenemos,
+        // nos quedamos con el que menor distancia tenga a la posicion home del brazo
+        // Home brazo -> (0.35, 0, 0.23)
+        double min_dist = 999999999;
+        arma::colvec3 pointFinal;
+
+        for(unsigned int j = 0; j < validPoint.size() ; j=j+3){
+
+            std::vector<double> auxDist(3);
+            auxDist.at(0) = (validPoint.at(j) - 0.35)*(validPoint.at(j) - 0.35);
+            auxDist.at(1) = (validPoint.at(j+1) - 0.0)*(validPoint.at(j+1) - 0.0);
+            auxDist.at(2) = (validPoint.at(j+2) - 0.23)*(validPoint.at(j+2) - 0.23);
+            double dist = sqrt(auxDist.at(0) + auxDist.at(1) + auxDist.at(2));
+
+            if(dist < min_dist){
+                arma::colvec3 pointFinal = { validPoint.at(j), validPoint.at(j+1), validPoint.at(j+2)};
+                min_dist = dist;
+            }
+
+
+        }
+
+        ContactPoint cpf( pointFinal, arma::eye(3, 3), , arma::eye(3, 3), eContactTypes::SFC, 1, 1, 1);
+
+        grasp.contactPoints(cpf);
 
 		return grasp;
 	}
