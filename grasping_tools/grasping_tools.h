@@ -6,5 +6,6 @@
 #include <objects/ObjectGpis.h>
 #include <objects/ObjectMesh.h>
 #include <hands/GripperHandTwoFingers.h>
+#include <hands/Arm3DOF.h>
 #include <hands/SimpleHandFourFingers.h>
 #include <visualization/visualization.h>

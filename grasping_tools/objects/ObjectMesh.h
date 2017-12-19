@@ -67,6 +67,9 @@ namespace grasping_tools {
         /// Get mesh info
         void mesh(pcl::PolygonMesh &_mesh);
 
+		// For rotate and traslate the mesh cloud
+		void rotateAndTraslate(pcl::PolygonMesh &_mesh, double _x, double _y, double _z,double _rx, double _ry, double _rz);
+
 	private:
         pcl::PointCloud<pcl::PointNormal> mVertices;
 		std::vector<pcl::Vertices> mFaces;

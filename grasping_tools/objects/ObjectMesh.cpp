@@ -14,6 +14,10 @@
 #include <pcl/PCLPointCloud2.h>
 #include <pcl/common/centroid.h>
 
+#include <pcl/point_cloud.h>
+#include <pcl/common/transforms.h>
+#include <pcl/PCLPointCloud2.h>
+
 #include <thread>
 #include <chrono>
 
@@ -227,3 +231,55 @@ void grasping_tools::ObjectMesh::mesh(pcl::PointCloud<pcl::PointNormal>& _vertic
 void grasping_tools::ObjectMesh::mesh(pcl::PolygonMesh &_mesh){
     _mesh = mMesh;
 }
+
+
+//---------------------------------------------------------------------------------------------------------------------
+void grasping_tools::ObjectMesh::rotateAndTraslate(pcl::PolygonMesh &_mesh, double _x, double _y, double _z,double _rx, double _ry, double _rz){
+
+		_mesh = mMesh;
+
+		pcl::PointCloud<pcl::PointXYZ> points;
+		pcl::fromPCLPointCloud2(_mesh.cloud, points);
+
+		// Define a rotation matrix 
+		Eigen::Matrix4f transform = Eigen::Matrix4f::Identity();
+
+		if(_rx != 0){
+  		transform(1,1) = cos (_rx);
+  		transform(1,2) = -sin(_rx);
+  		transform(2,1) = sin (_rx);
+  		transform(2,2) = cos (_rx);
+		}
+		if(_ry != 0){
+  		transform(0,0) = cos (_ry);
+  		transform(0,2) = sin(_ry);
+  		transform(2,0) = -sin (_ry);
+  		transform(2,2) = cos (_ry);
+		}
+		if(_rz != 0){
+  		transform(0,0) = cos (_rz);
+  		transform(0,1) = -sin(_rz);
+  		transform(1,0) = sin (_rz);
+  		transform(1,1) = cos (_rz);
+		}
+
+		// Define a translation
+  		transform(0,3) = _x;
+		transform(1,3) = _y;
+		transform(2,3) = _z;
+
+		pcl::transformPointCloud(points, points, transform);
+
+		pcl::toPCLPointCloud2(points, _mesh.cloud);
+
+		// Update Vertices, Faces and Centroid
+		pcl::fromPCLPointCloud2(_mesh.cloud, mVertices);
+		mFaces = _mesh.polygons;
+
+		Eigen::Vector4f centroid;
+		pcl::compute3DCentroid(mVertices, centroid);
+
+		mCentroid[0] = centroid[0];
+		mCentroid[1] = centroid[1];
+		mCentroid[2] = centroid[2];
+	}
