@@ -20,9 +20,10 @@ namespace grasping_tools {
 
 		/// Templatized method for generating grasps
 		/// \param _object: templatized object to be grasped.
+		/// \param _pointIK: return final point from IK.
 		/// \return: generated grasp.
 		template<typename ObjectType_>
-		Grasp generate(ObjectType_ &_object);
+		Grasp generate(ObjectType_ &_object, arma::colvec3 &_pointIK);
 
 		/// Given a grasp, generate a 3d meshed model for visualization purposes
 		/// \param _grasp: grasp to be shown

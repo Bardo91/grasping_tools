@@ -28,7 +28,7 @@
 
 namespace grasping_tools {
 	template<>
-	inline Grasp Arm3DOF::generate<ObjectGpis>(ObjectGpis &_object) {
+	inline Grasp Arm3DOF::generate<ObjectGpis>(ObjectGpis &_object, arma::colvec3 &_pointIK) {
 		// Get random point on a sphere with radius 1.5 of max distance from object's origin.
 		arma::colvec3 center = _object.center();
 		arma::mat data = _object.data();
@@ -99,7 +99,7 @@ namespace grasping_tools {
 
 	//-----------------------------------------------------------------------------------------------------------------
 	template<>
-	inline Grasp Arm3DOF::generate<ObjectMesh>(ObjectMesh &_object) {
+	inline Grasp Arm3DOF::generate<ObjectMesh>(ObjectMesh &_object, arma::colvec3 &_pointIK) {
         // Generate grasp
 		Grasp grasp;
         std::vector<ContactPoint> cps;
@@ -138,43 +138,106 @@ namespace grasping_tools {
         // Get a random candidate point // 666 TODO improve candidate selection
         arma::imat id = arma::randi(1, 1, arma::distr_param(0, candidatePoints.n_cols - 1));
         arma::colvec6 candidatePoint = candidatePoints.col(id(0,0));
+        
 
-        arma::mat intersections = _object.intersectRay(candidatePoint.rows(0, 2)+ 2*candidatePoint.rows(3, 5), candidatePoint.rows(0, 2) - candidatePoint.rows(3, 5));
+        arma::mat intersections = _object.intersectRay(candidatePoint.rows(0, 2)+ 2*candidatePoint.rows(3, 5), candidatePoint.rows(0, 2) + candidatePoint.rows(3, 5));
 
-        //std::cout << " Matriz intersections: " << intersections << std::endl;
+        std::cout << " Matriz intersections: " << intersections << std::endl;
 
+        if( intersections.n_cols == 2 ){
+        // Cogemos punto medio
         arma::colvec3 puntoMedio = { (intersections(0,0) + intersections(0,1))/2, (intersections(1,0) + intersections(1,1))/2, (intersections(2,0) + intersections(2,1))/2 };
 
         std::vector<double> auxRadio(3);
-        auxRadio.at(0) = (intersections(0,1) - intersections(0,0))*(intersections(0,1) - intersections(0,0));
-        auxRadio.at(1) = (intersections(1,1) - intersections(1,0))*(intersections(1,1) - intersections(1,0));
-        auxRadio.at(2) = (intersections(2,1) - intersections(2,0))*(intersections(2,1) - intersections(2,0));
+        auxRadio.at(0) = intersections(0,1) - intersections(0,0);
+        auxRadio.at(1) = intersections(1,1) - intersections(1,0);
+        auxRadio.at(2) = intersections(2,1) - intersections(2,0);
 
-        double radioPuntos = sqrt(auxRadio.at(0) + auxRadio.at(1) + auxRadio.at(2))/2;
+        // Calculo Apertura garra
+        double apert_garra = arma::norm( auxRadio);
+        if(apert_garra > mAperture){
+            std::cout << "Apertura mas grande de la permitida" << std::endl;
+            return grasp;
+        }
+        else{
+            std::cout << "Apertura permitida" << std::endl;
+        }
 
-        // azimut y zenit????
+        // CHECK THAT RESULT LIES OUTSIDE OF THE MESH
+        QHULL_LIB_CHECK;
+        pcl::PointCloud<pcl::PointXYZ> verticesObject;
+        _object.vertices(verticesObject);
+        // Compute convex hull
+        orgQhull::PointCoordinates points(3, "Object convex hull");
+        std::vector<double> concatenationPoints;
+        for (auto &p:verticesObject) {
+            concatenationPoints.push_back(p.x);
+            concatenationPoints.push_back(p.y);
+            concatenationPoints.push_back(p.z);
+        }
+        points.append(concatenationPoints);
+        try {
+            orgQhull::Qhull convexHull("", 3, wrenchesCones.n_cols, &concatenationPoints[0], "Qt");
+            orgQhull::QhullFacetList facets = convexHull.facetList();
+            bool isOutside = true;
+            for (orgQhull::QhullFacetList::iterator it = facets.begin(); it != facets.end(); ++it) {
+                orgQhull::QhullFacet f = *it;
+                if (!f.isGood()) continue;
+                
+            }
+        }catch (orgQhull::QhullError e) {
+            std::cout << "Error computing convex hull. Error msg: \n" << e.what()  << std::endl;
+            return Grasp;
+        }
 
+        // Obtencion vectores N y U para Circulo 3D
+        std::vector<double> vec_n(3);
+        vec_n.at(0) = intersections(0,1) - auxRadio.at(0);
+        vec_n.at(1) = intersections(1,1) - auxRadio.at(1);
+        vec_n.at(2) = intersections(2,1) - auxRadio.at(2);
 
+        std::vector<double> proy_nu(3);
+        arma::mat vec_r = arma::eye(3, 3);
+        double min_producto = 9999999;
 
-        int npCircle = 20;
+        for(unsigned int k = 0; k < 3; k++){
+            double producto_e = vec_r.at(k,0)*vec_n.at(0) + vec_r.at(k,1)*vec_n.at(1) + vec_r.at(k,2)*vec_n.at(2);
+
+            if( producto_e < min_producto ){
+                min_producto = producto_e;
+                proy_nu.at(0) = producto_e*vec_n.at(0);
+                proy_nu.at(1) = producto_e*vec_n.at(1);
+                proy_nu.at(2) = producto_e*vec_n.at(2);
+            }
+        }
+
+        std::vector<double> vec_u(3);
+        vec_u.at(0) = vec_n.at(0) -  proy_nu.at(0);
+        vec_u.at(1) = vec_n.at(1) -  proy_nu.at(1);
+        vec_u.at(2) = vec_n.at(2) -  proy_nu.at(2);
+
+        double mod_u = sqrt( vec_n.at(0)*vec_n.at(0) + vec_n.at(1)*vec_n.at(1) + vec_n.at(2)*vec_n.at(2) );
+        vec_u.at(0) = vec_u.at(0)/mod_u;
+        vec_u.at(1) = vec_u.at(1)/mod_u;
+        vec_u.at(2) = vec_u.at(2)/mod_u;
+
+        // Creacion Circulo 3D y obtencion de sus puntos
+        int npCircle = 40;
+        double radioPuntos = 0.05;
         arma::mat puntosCirculo(3, npCircle);
-        puntosCirculo = pointsInCircle(radioPuntos, puntoMedio, , , npCircle);
-
-        // Como saber la mitad del circulo con los puntos que debemos coger???
-
-
-
+        arma::colvec3 vec_n_arma = {vec_n.at(0), vec_n.at(1), vec_n.at(2)};
+        arma::colvec3 vec_u_arma = {vec_u.at(0), vec_u.at(1), vec_u.at(2)};
+        puntosCirculo = pointsInCircleNU(radioPuntos, puntoMedio, vec_n_arma, vec_u_arma, npCircle);
 
         std::vector<double> validPoints;
 
-        for(unsigned int i = 0; i < ; i++){
+        for(unsigned int i = 0; i < npCircle; i++){
 
             // Calculate inverse kinematic for points
             std::vector<int> IKArm(3);
-            float valx = ;
-            float valy = ;
-            float valz = ;
-
+            float valx = puntosCirculo.at(0,i);
+            float valy = puntosCirculo.at(1,i);
+            float valz = puntosCirculo.at(2,i);
 
             IKArm.at(0) = atan2(valy, valx);
  
@@ -199,13 +262,13 @@ namespace grasping_tools {
 
             // If these point is a valid angle for Workspace Arm, add it to ContactPoint
             if((IKArm.at(0)>=(-90*M_PI/180) && IKArm.at(0)<=(90*M_PI/180)) && (IKArm.at(1)>=(-90*M_PI/180) && IKArm.at(1)<=(90*M_PI/180)) && (IKArm.at(2)>=(-90*M_PI/180) && IKArm.at(2)<=(90*M_PI/180)) ){
-                std::cout << "Valid point" << std::endl;
-            
-
-                validPoints.push_back( );
+                //std::cout << "Valid point" << std::endl;
+                validPoints.push_back(puntosCirculo.at(0,i));
+                validPoints.push_back(puntosCirculo.at(1,i));
+                validPoints.push_back(puntosCirculo.at(2,i));
             }
             else{
-                std::cout << "Invalid point" << std::endl;
+                //std::cout << "Invalid point" << std::endl;
             }
             
         }
@@ -213,28 +276,34 @@ namespace grasping_tools {
         // De los que obtenemos,
         // nos quedamos con el que menor distancia tenga a la posicion home del brazo
         // Home brazo -> (0.35, 0, 0.23)
-        double min_dist = 999999999;
+        double min_dist = 9999999;
         arma::colvec3 pointFinal;
 
-        for(unsigned int j = 0; j < validPoint.size() ; j=j+3){
+        for(unsigned int j = 0; j < validPoints.size() ; j=j+3){
 
             std::vector<double> auxDist(3);
-            auxDist.at(0) = (validPoint.at(j) - 0.35)*(validPoint.at(j) - 0.35);
-            auxDist.at(1) = (validPoint.at(j+1) - 0.0)*(validPoint.at(j+1) - 0.0);
-            auxDist.at(2) = (validPoint.at(j+2) - 0.23)*(validPoint.at(j+2) - 0.23);
+            auxDist.at(0) = (validPoints.at(j) - 0.35)*(validPoints.at(j) - 0.35);
+            auxDist.at(1) = (validPoints.at(j+1) - 0.0)*(validPoints.at(j+1) - 0.0);
+            auxDist.at(2) = (validPoints.at(j+2) - 0.23)*(validPoints.at(j+2) - 0.23);
             double dist = sqrt(auxDist.at(0) + auxDist.at(1) + auxDist.at(2));
 
             if(dist < min_dist){
-                arma::colvec3 pointFinal = { validPoint.at(j), validPoint.at(j+1), validPoint.at(j+2)};
+                pointFinal = { validPoints.at(j), validPoints.at(j+1), validPoints.at(j+2)};
                 min_dist = dist;
             }
-
-
         }
 
-        ContactPoint cpf( pointFinal, arma::eye(3, 3), , arma::eye(3, 3), eContactTypes::SFC, 1, 1, 1);
+        // return point final IK
+        _pointIK = pointFinal;
+        std::cout << "Punto final: " << pointFinal << std::endl;
 
-        grasp.contactPoints(cpf);
+       for(unsigned int i = 0; i < intersections.n_cols; i++){
+            ContactPoint cp(intersections.col(i).head(3), arma::eye(3, 3), intersections.col(i).tail(3), arma::eye(3, 3), eContactTypes::SFC, 1, 1, 1);
+            cps.push_back(cp);
+        }
+        grasp.contactPoints(cps);
+
+        }
 
 		return grasp;
 	}

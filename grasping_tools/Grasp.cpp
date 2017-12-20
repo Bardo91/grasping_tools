@@ -230,7 +230,7 @@ namespace grasping_tools {
             points.append(concatenationPoints);
             try {
                 orgQhull::Qhull convexHull("", 6, wrenchesCones.n_cols, &concatenationPoints[0], "Qt");
-                orgQhull::QhullFacetList facets = convexHull.facetList();
+				orgQhull::QhullFacetList facets = convexHull.facetList();
                 double minDistance = 99999999;
                 int minIdx = 0;
                 int counterIdx = 0;
