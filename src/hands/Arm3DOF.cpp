@@ -5,13 +5,13 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "Arm3DOF.h"
+#include <grasping_tools/hands/Arm3DOF.h>
 #include <pcl/io/io.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/io/vtk_lib_io.h>
 #include <pcl/io/ply_io.h>
 
-#include "../mathTools.h"
+#include <grasping_tools/mathTools.h>
 #include <pcl/point_cloud.h>
 #include <pcl/common/transforms.h>
 #include <pcl/PCLPointCloud2.h>
