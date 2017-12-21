@@ -5,7 +5,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include <qualityMetrics/DistancePointConvexCone.h>
+#include <grasping_tools/qualityMetrics/DistancePointConvexCone.h>
 
 #include <cassert>
 #include <Eigen/Eigen>

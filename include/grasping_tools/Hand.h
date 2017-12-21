@@ -8,8 +8,8 @@
 #ifndef GPISGRASPING_HAND_H_
 #define GPISGRASPING_HAND_H_
 
-#include "Grasp.h"
-#include "Object.h"
+#include <grasping_tools/Grasp.h>
+#include <grasping_tools/Object.h>
 
 namespace grasping_tools {
 	class Hand {

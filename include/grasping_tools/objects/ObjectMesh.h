@@ -8,7 +8,7 @@
 #ifndef GPISGRASPING_OBJECTS_OBJECTMESH_H_
 #define GPISGRASPING_OBJECTS_OBJECTMESH_H_
 
-#include "../Object.h"
+#include <grasping_tools/Object.h>
 
 #include <pcl/PolygonMesh.h>
 #include <pcl/point_cloud.h>

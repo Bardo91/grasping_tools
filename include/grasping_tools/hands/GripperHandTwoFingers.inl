@@ -5,10 +5,10 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include <objects/ObjectGpis.h>
-#include <objects/ObjectMesh.h>
-#include <Grasp.h>
-#include <mathTools.h>
+#include <grasping_tools/objects/ObjectGpis.h>
+#include <grasping_tools/objects/ObjectMesh.h>
+#include <grasping_tools/Grasp.h>
+#include <grasping_tools/mathTools.h>
 #include <deque>
 
 namespace grasping_tools {
@@ -26,26 +26,12 @@ namespace grasping_tools {
                             fabs(maxY - minY) * 3),
                             fabs(maxZ - minZ) * 3);
 
-		arma::colvec3 initPoint = generateRandomPointSphere(center, radius);
-		// Get point on surface - line thought center
-		arma::colvec p0 = _object.center();
-		arma::colvec p1 = initPoint;
-		do {
-			arma::colvec3 newPoint = (p1 + p0) / 2;
-			double val = _object.evaluate(newPoint);
-			if (val > 0) {
-				p1 = newPoint;
-			}
-			else {
-				p0 = newPoint;
-			}
-		} while (norm(p1 - p0) > 1e-3);
-		arma::colvec cpPos1 = p0;
 
-
+		int randIdx = double(rand())/RAND_MAX*(data.n_cols -1);
+		arma::colvec cpPos1 = data.col(randIdx).head(3);;
 		// Get opposite point
-		p0 = _object.center();
-        p1 = _object.center() - 2*(cpPos1-_object.center());
+		arma::colvec p0 = cpPos1 - data.col(randIdx).tail(3)*0.01;
+		arma::colvec p1 = cpPos1 - data.col(randIdx).tail(3)*0.5;
 		do {
 			arma::colvec3 newPoint = (p1 + p0) / 2;
 			double val = _object.evaluate(newPoint);
@@ -62,15 +48,11 @@ namespace grasping_tools {
 		arma::colvec4 values;
 		arma::mat44 covariances;
 		_object.evaluate(cpPos1, values, covariances);
-		//std::cout << "normal 1: " << values.tail(3).t() << ". Norm: " << norm(values.tail(3)) << std::endl;
-		//std::cout << "pos1: " << cpPos1.t();
 		// Normalize normal from GPIS
 		values.tail(3) /= norm(values.tail(3));
         cps.push_back(ContactPoint(cpPos1, arma::eye(3, 3)*covariances(0, 0), values.tail(3), covariances.submat(1, 1, 3, 3), eContactTypes::SFC, 1, 1, 1));
 
 		_object.evaluate(cpPos2, values, covariances);
-		//std::cout << "normal 2: " << values.tail(3).t() << ". Norm: " << norm(values.tail(3)) << std::endl;
-		//std::cout << "pos2: " << cpPos2.t();
 		// Normalize normal from GPIS
 		values.tail(3) /= norm(values.tail(3));
         cps.push_back(ContactPoint(cpPos2, arma::eye(3, 3)*covariances(0, 0), values.tail(3), covariances.submat(1, 1, 3, 3), eContactTypes::SFC, 1, 1, 1));

@@ -5,10 +5,10 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "Grasp.h"
-#include "mathTools.h"
-#include "qualityMetrics/DistancePointConvexCone.h"
-#include "qualityMetrics/IterativeGraspWrenchSpace.h"
+#include <grasping_tools/Grasp.h>
+#include <grasping_tools/mathTools.h>
+#include <grasping_tools/qualityMetrics/DistancePointConvexCone.h>
+#include <grasping_tools/qualityMetrics/IterativeGraspWrenchSpace.h>
 
 #include <libqhullcpp/Qhull.h>
 #include <libqhullcpp/RboxPoints.h>
@@ -275,7 +275,7 @@ namespace grasping_tools {
 
                 return mLmrw;
             }catch (orgQhull::QhullError e) {
-                std::cout << "Error computing convex hull. Error msg: \n" << e.what()  << std::endl;
+                std::cout << "Error computing convex hull. Error msg: \n" <<std::endl; //<< e.what()  << std::endl;
                 mLmrw = 0;
                 mHasForceClosure = false;
                 return mLmrw;

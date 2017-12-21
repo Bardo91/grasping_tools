@@ -8,9 +8,9 @@
 #ifndef GPISGRASPING_HANDS_GRIPPERHANDTWOFINGERS_H_
 #define GPISGRASPING_HANDS_GRIPPERHANDTWOFINGERS_H_
 
-#include"../Hand.h"
+#include <grasping_tools/Hand.h>
 #include <pcl/PolygonMesh.h>
-
+#include <pcl/point_types.h>
 namespace grasping_tools {
 	class GripperHandTwoFingers : public Hand {
 	public:

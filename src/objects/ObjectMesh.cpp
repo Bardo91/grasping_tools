@@ -5,8 +5,8 @@
 ////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include <objects/ObjectMesh.h>
-#include <mathTools.h>
+#include <grasping_tools/objects/ObjectMesh.h>
+#include <grasping_tools/mathTools.h>
 
 #include <pcl/io/ply_io.h>
 #include <pcl/io/obj_io.h>
