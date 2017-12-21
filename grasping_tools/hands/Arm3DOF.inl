@@ -148,86 +148,53 @@ namespace grasping_tools {
         // Cogemos punto medio
         arma::colvec3 puntoMedio = { (intersections(0,0) + intersections(0,1))/2, (intersections(1,0) + intersections(1,1))/2, (intersections(2,0) + intersections(2,1))/2 };
 
-        std::vector<double> auxRadio(3);
-        auxRadio.at(0) = intersections(0,1) - intersections(0,0);
-        auxRadio.at(1) = intersections(1,1) - intersections(1,0);
-        auxRadio.at(2) = intersections(2,1) - intersections(2,0);
+        std::vector<double> vec_dist(3);
+        vec_dist.at(0) = intersections(0,1) - intersections(0,0);
+        vec_dist.at(1) = intersections(1,1) - intersections(1,0);
+        vec_dist.at(2) = intersections(2,1) - intersections(2,0);
 
         // Calculo Apertura garra
-        double apert_garra = arma::norm( auxRadio);
+        arma::colvec3 arma_vec_dist = {vec_dist.at(0), vec_dist.at(1), vec_dist.at(2) };
+        double apert_garra = norm( arma_vec_dist );
         if(apert_garra > mAperture){
-            std::cout << "Apertura mas grande de la permitida" << std::endl;
+            std::cout << "Apertura mas grande de la permitida " << mAperture << " : " << apert_garra << std::endl;
             return grasp;
         }
         else{
-            std::cout << "Apertura permitida" << std::endl;
-        }
-
-        // CHECK THAT RESULT LIES OUTSIDE OF THE MESH
-        QHULL_LIB_CHECK;
-        pcl::PointCloud<pcl::PointXYZ> verticesObject;
-        _object.vertices(verticesObject);
-        // Compute convex hull
-        orgQhull::PointCoordinates points(3, "Object convex hull");
-        std::vector<double> concatenationPoints;
-        for (auto &p:verticesObject) {
-            concatenationPoints.push_back(p.x);
-            concatenationPoints.push_back(p.y);
-            concatenationPoints.push_back(p.z);
-        }
-        points.append(concatenationPoints);
-        try {
-            orgQhull::Qhull convexHull("", 3, wrenchesCones.n_cols, &concatenationPoints[0], "Qt");
-            orgQhull::QhullFacetList facets = convexHull.facetList();
-            bool isOutside = true;
-            for (orgQhull::QhullFacetList::iterator it = facets.begin(); it != facets.end(); ++it) {
-                orgQhull::QhullFacet f = *it;
-                if (!f.isGood()) continue;
-                
-            }
-        }catch (orgQhull::QhullError e) {
-            std::cout << "Error computing convex hull. Error msg: \n" << e.what()  << std::endl;
-            return Grasp;
+            std::cout << "Apertura permitida " << mAperture << " : " << apert_garra << std::endl;
         }
 
         // Obtencion vectores N y U para Circulo 3D
-        std::vector<double> vec_n(3);
-        vec_n.at(0) = intersections(0,1) - auxRadio.at(0);
-        vec_n.at(1) = intersections(1,1) - auxRadio.at(1);
-        vec_n.at(2) = intersections(2,1) - auxRadio.at(2);
+        arma::colvec3 vec_n = {intersections(0,1) - puntoMedio(0),
+                                intersections(1,1) - puntoMedio(1),
+                                intersections(2,1) - puntoMedio(2)};
 
-        std::vector<double> proy_nu(3);
+        vec_n /= arma::norm(vec_n);
+
+        std::cout << "vec n: " << vec_n << std::endl;
+        
         arma::mat vec_r = arma::eye(3, 3);
         double min_producto = 9999999;
-
+        int minIdx = 0;
         for(unsigned int k = 0; k < 3; k++){
-            double producto_e = vec_r.at(k,0)*vec_n.at(0) + vec_r.at(k,1)*vec_n.at(1) + vec_r.at(k,2)*vec_n.at(2);
+            double prod = abs(arma::dot(vec_n, vec_r.col(k)));
+            std::cout << "prod: " << prod << std::endl;
 
-            if( producto_e < min_producto ){
-                min_producto = producto_e;
-                proy_nu.at(0) = producto_e*vec_n.at(0);
-                proy_nu.at(1) = producto_e*vec_n.at(1);
-                proy_nu.at(2) = producto_e*vec_n.at(2);
+            if( prod < min_producto ){
+                min_producto = prod;
+                minIdx = k ;
             }
         }
 
-        std::vector<double> vec_u(3);
-        vec_u.at(0) = vec_n.at(0) -  proy_nu.at(0);
-        vec_u.at(1) = vec_n.at(1) -  proy_nu.at(1);
-        vec_u.at(2) = vec_n.at(2) -  proy_nu.at(2);
+        arma::colvec3 vec_u = vec_r.col(minIdx) - arma::dot(vec_n, vec_r.col(minIdx))*vec_n;
+        vec_u /= arma::norm(vec_u);
 
-        double mod_u = sqrt( vec_n.at(0)*vec_n.at(0) + vec_n.at(1)*vec_n.at(1) + vec_n.at(2)*vec_n.at(2) );
-        vec_u.at(0) = vec_u.at(0)/mod_u;
-        vec_u.at(1) = vec_u.at(1)/mod_u;
-        vec_u.at(2) = vec_u.at(2)/mod_u;
+        std::cout << "vec u: " << vec_u << std::endl;
 
         // Creacion Circulo 3D y obtencion de sus puntos
         int npCircle = 40;
-        double radioPuntos = 0.05;
-        arma::mat puntosCirculo(3, npCircle);
-        arma::colvec3 vec_n_arma = {vec_n.at(0), vec_n.at(1), vec_n.at(2)};
-        arma::colvec3 vec_u_arma = {vec_u.at(0), vec_u.at(1), vec_u.at(2)};
-        puntosCirculo = pointsInCircleNU(radioPuntos, puntoMedio, vec_n_arma, vec_u_arma, npCircle);
+        double radioPuntos = mAperture;
+        puntosCirculo = pointsInCircleNU(radioPuntos, puntoMedio, vec_n, vec_u, npCircle);
 
         std::vector<double> validPoints;
 
@@ -246,30 +213,35 @@ namespace grasping_tools {
         
             float D = (x*x+y*y-humero*humero-radio*radio)/(2*humero*radio);
             float auxD = 1 - D*D;
-            if(auxD < 0){
-                auxD = 0;
-                std::cout << "1-D^2 < 0, unrecheable point, fitting to 0\n";
-            }
-        
-            float theta2a = atan2(sqrt(auxD), D);
-        
-            float k1a = humero + radio*cos(theta2a);
-            float k2a = radio*sin(theta2a);
-            float theta1a = atan2(y,x)-atan2(k2a,k1a);
-        
-            IKArm.at(1) = theta1a;
-            IKArm.at(2) = theta2a;
+            if(auxD >= 0){
 
-            // If these point is a valid angle for Workspace Arm, add it to ContactPoint
-            if((IKArm.at(0)>=(-90*M_PI/180) && IKArm.at(0)<=(90*M_PI/180)) && (IKArm.at(1)>=(-90*M_PI/180) && IKArm.at(1)<=(90*M_PI/180)) && (IKArm.at(2)>=(-90*M_PI/180) && IKArm.at(2)<=(90*M_PI/180)) ){
-                //std::cout << "Valid point" << std::endl;
-                validPoints.push_back(puntosCirculo.at(0,i));
-                validPoints.push_back(puntosCirculo.at(1,i));
-                validPoints.push_back(puntosCirculo.at(2,i));
+                float theta2a = atan2(sqrt(auxD), D);
+            
+                float k1a = humero + radio*cos(theta2a);
+                float k2a = radio*sin(theta2a);
+                float theta1a = atan2(y,x)-atan2(k2a,k1a);
+            
+                IKArm.at(1) = theta1a;
+                IKArm.at(2) = theta2a;
+
+                // If these point is a valid angle for Workspace Arm, add it to ContactPoint
+                if((IKArm.at(0)>=(-90*M_PI/180) && IKArm.at(0)<=(90*M_PI/180)) && (IKArm.at(1)>=(-90*M_PI/180) && IKArm.at(1)<=(90*M_PI/180)) && (IKArm.at(2)>=(-90*M_PI/180) && IKArm.at(2)<=(90*M_PI/180)) ){
+                    //std::cout << "Valid point" << std::endl;
+                    validPoints.push_back(puntosCirculo.at(0,i));
+                    validPoints.push_back(puntosCirculo.at(1,i));
+                    validPoints.push_back(puntosCirculo.at(2,i));
+                    validPointsIk.push_back(true);
+                }
+                else{
+                    //std::cout << "Invalid point" << std::endl;
+                    validPointsIk.push_back(false);
+                }
+
             }
             else{
-                //std::cout << "Invalid point" << std::endl;
-            }
+                    //std::cout << "Invalid point" << std::endl;
+                    validPointsIk.push_back(false);
+                }
             
         }
 
@@ -305,7 +277,6 @@ namespace grasping_tools {
 
         }
 
-		return grasp;
-	}
-
+	return grasp;
+    }   
 }

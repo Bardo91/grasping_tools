@@ -37,6 +37,10 @@ namespace grasping_tools {
 		pcl::PolygonMesh mLeftGripper;
 		pcl::PolygonMesh mRightGripper;
         bool mLoadedModel = false;
+
+	public:
+		arma::mat puntosCirculo;
+		std::vector<bool> validPointsIk;
     };
 }
 

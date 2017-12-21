@@ -68,9 +68,7 @@ namespace grasping_tools {
 
 	//--------------------------------------------------------------------------------------------------------------------
 	mat pointsInCircleNU(double _radius, arma::colvec3 _center, arma::colvec3 n, arma::colvec3 u, unsigned _nPoints){
-
 		
-			
 		colvec3 nxu = cross(u,n);
 
 		auto pCircle = [&](double t)->arma::colvec3 {
