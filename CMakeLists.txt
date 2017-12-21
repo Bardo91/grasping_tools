@@ -12,6 +12,16 @@ project(grasping_tools)
 ######### Custom project configuration ##########
 #################################################
 
+## Configure compiler
+if(APPLE)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -stdlib=libc++")
+elseif(UNIX)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+elseif(WIN32)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+endif()
+
+
 #################################################
 ######## Automatic project configuration ########
 #################################################
@@ -33,6 +43,11 @@ macro(GroupSources curdir)
 endmacro()
 
 GroupSources(grasping_tools)
+
+if(NOT DEFINED ${CMAKE_BUILD_TYPE})
+	set(CMAKE_BUILD_TYPE Release)
+endif(NOT EXIST ${CMAKE_BUILD_TYPE})
+
 
 #########################################
 ###### Loading 3rd party libraries.######
@@ -56,6 +71,14 @@ else()
 	MESSAGE( FATAL_ERROR "Couldnt Add PCL and/or it's dependencies")
 endif()
 
+find_package(catkin)
+if(${catkin_FOUND})
+	catkin_package(
+	  	CATKIN_DEPENDS roscpp
+		INCLUDE_DIRS include
+	)
+endif(${catkin_FOUND})
+
 #########################################
 ######			Compile extra Libraries 		   ######
 #########################################
@@ -68,18 +91,25 @@ add_subdirectory(dep/gpis)
 #########################################
 
 # Collect all sources
-file(GLOB_RECURSE GRASPTOOLS_SOURCE_FILES "grasping_tools/*.cpp" "grasping_tools/*.h" "grasping_tools/*.inl")
+file(GLOB_RECURSE GRASPTOOLS_SOURCE_FILES "src/*.cpp")
+file(GLOB_RECURSE GRASPTOOLS_HEADER_FILES "include/*.h" "include/*.inl")
 
-set(PROJECT_NAME grasping_tools)
+add_library(${PROJECT_NAME} STATIC ${GRASPTOOLS_SOURCE_FILES} ${GRASPTOOLS_HEADER_FILES})
+target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
-add_library(${PROJECT_NAME} STATIC ${GRASPTOOLS_SOURCE_FILES})
-target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/grasping_tools)
-
-target_include_directories(${PROJECT_NAME} PUBLIC "dep/gpis/gpis")
+target_include_directories(${PROJECT_NAME} PUBLIC "dep/gpis")
 target_link_libraries(${PROJECT_NAME} LINK_PUBLIC gpis)
 
 target_include_directories(${PROJECT_NAME} PUBLIC "dep/qhull/src")
-target_link_libraries(${PROJECT_NAME} LINK_PUBLIC qhull)
+if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+    target_link_libraries(${PROJECT_NAME} LINK_PUBLIC qhullcpp_d)
+    target_link_libraries(${PROJECT_NAME} LINK_PUBLIC qhullstatic_rd)
+else()
+    target_link_libraries(${PROJECT_NAME} LINK_PUBLIC qhullcpp)
+    target_link_libraries(${PROJECT_NAME} LINK_PUBLIC qhullstatic_r)
+endif()
+
+target_link_libraries(${PROJECT_NAME} LINK_PUBLIC ${qhull_STATIC})
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${ARMADILLO_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} LINK_PUBLIC ${ARMADILLO_LIBRARIES})

@@ -44,7 +44,7 @@ namespace gpis {
 		void removeData();
 
 		/// Compute mesh with data
-		bool compute(const arma::vec &_priorParameters, arma::mat _initPoints = arma::mat(), double minDist = 0.1, unsigned _maxIters = std::numeric_limits<unsigned>::max(), pcl::visualization::PCLVisualizer *_viewer = nullptr);
+		bool compute(const arma::vec &_priorParameters, arma::mat _initPoints = arma::mat(), double minDist = 0.1, unsigned _maxIters = std::numeric_limits<unsigned>::max(), double _maxSeconds = std::numeric_limits<double>::max(), pcl::visualization::PCLVisualizer *_viewer = nullptr);
 
 		/// Get data points.
 		void data(arma::mat &_data) const;
@@ -58,6 +58,9 @@ namespace gpis {
 		/// Get mesh with variance
 		void mesh(pcl::PointCloud<pcl::PointXYZRGB> &_cloud, std::vector<pcl::Vertices> &_polygons) const;
 
+		/// Get mesh with variance
+		void mesh(pcl::PolygonMesh &_mesh) const;
+
 		/// Get points
 		void points(arma::mat &_points) const;
 
@@ -65,7 +68,7 @@ namespace gpis {
 		void points(pcl::PointCloud<pcl::PointXYZ> &_points) const;
 
 	private:	// Private interface
-
+		bool checkTimeLimit(double _maxSeconds);
 		void initFrontier(	const arma::vec &_point,
 							std::function<arma::vec(const arma::vec&)> _fplus,
 							double _dist,
@@ -87,6 +90,7 @@ namespace gpis {
 		void colorMap(double _val, double &_r, double &_g, double &_b) const;
 			
 	private:	//	 members
+		std::chrono::high_resolution_clock::time_point mT0;
 		Mean *mMean;
 		Kernel *mKernel;
 		arma::vec mPriorParameters;
