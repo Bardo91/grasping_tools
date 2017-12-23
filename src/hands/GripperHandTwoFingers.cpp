@@ -19,17 +19,20 @@
 namespace grasping_tools {
 	GripperHandTwoFingers::GripperHandTwoFingers(double _aperture) {
 		mAperture = _aperture;
-        //mModel = "/home/bardo91/programing/gpisGrasping/projects/grasping/hands/gripper/";
-        //
-        //if (pcl::io::loadPolygonFileSTL(mModel + "base.stl", mMeshBase) == 0) {
-        //    PCL_ERROR("Failed to load STL file\n");
-        //}
-        //if (pcl::io::loadPolygonFileSTL(mModel + "leftGripper.stl", mLeftGripper) == 0) {
-        //    PCL_ERROR("Failed to load STL file\n");
-        //}
-        //if (pcl::io::loadPolygonFileSTL(mModel + "rightGripper.stl", mRightGripper) == 0) {
-        //    PCL_ERROR("Failed to load STL file\n");
-        //}
+        mModel = "/home/bardo91/programming/gpisGrasping/projects/grasping/hands/gripper/";
+        mLoadedModel = true;
+        if (pcl::io::loadPolygonFileSTL(mModel + "base.stl", mMeshBase) == 0) {
+            PCL_ERROR("Failed to load STL file\n");
+            mLoadedModel = false;
+        }
+        if (pcl::io::loadPolygonFileSTL(mModel + "leftGripper.stl", mLeftGripper) == 0) {
+            PCL_ERROR("Failed to load STL file\n");
+            mLoadedModel = false;
+        }
+        if (pcl::io::loadPolygonFileSTL(mModel + "rightGripper.stl", mRightGripper) == 0) {
+            PCL_ERROR("Failed to load STL file\n");
+            mLoadedModel = false;
+        }
 	}
 
 	pcl::PolygonMesh GripperHandTwoFingers::generateHandModel(const Grasp & _grasp, double _rotation) {
@@ -54,7 +57,7 @@ namespace grasping_tools {
 		pcl::fromPCLPointCloud2(mMeshBase.cloud, cloudGripper3);
 
 		Eigen::Matrix4f t = Eigen::Matrix4f::Identity();
-		t(1, 3) = -0.36;
+        t(1, 3) = -0.36/8;
 		pcl::transformPointCloud(cloudGripper3, cloudGripper3, t);
 
 		t = Eigen::Matrix4f::Identity();
