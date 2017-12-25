@@ -46,20 +46,17 @@ GroupSources(grasping_tools)
 
 if(NOT DEFINED ${CMAKE_BUILD_TYPE})
 	set(CMAKE_BUILD_TYPE Release)
-endif(NOT EXIST ${CMAKE_BUILD_TYPE})
+endif(NOT DEFINED ${CMAKE_BUILD_TYPE})
 
 
 #########################################
 ###### Loading 3rd party libraries.######
 #########################################
 if(WIN32)
-	set(ARMADILLO_INCLUDE_DIRS $ENV{ARMADILLO_INCLUDE_DIRS})
-	set(ARMADILLO_LIBRARIES $ENV{ARMADILLO_LIBRARIES})
-	set(Boost_USE_STATIC_LIBS ON)
+    find_package(Armadillo REQUIRED HINTS "C:/Program Files (x86)/armadillo/share/Armadillo/CMake")
 else()
     find_package(Armadillo REQUIRED HINTS "/usr/local /usr/")
 endif()
-find_package(Boost REQUIRED COMPONENTS system)
 
 ## Load PCL
 find_package(PCL 1.8 QUIET REQUIRED)

@@ -11,6 +11,10 @@
 #include <armadillo>
 #include <vector>
 
+#ifndef M_PI
+	#define M_PI 3.14159265359
+#endif
+
 namespace grasping_tools {
 	//--------------------------------------------------------------------------------------------------------------------
 	/// Generate all possible combinations between the elements in the vector with varying size of combinations,

@@ -11,6 +11,11 @@
 #include <Eigen/Eigen>
 #include <iostream>
 
+#ifndef M_PI
+	#define M_PI 3.14159265359
+#endif
+
+
 void test3dCone();
 void test6dConeSimple();
 void test6dCone();
