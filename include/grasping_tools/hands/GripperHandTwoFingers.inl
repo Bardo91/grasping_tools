@@ -82,8 +82,8 @@ namespace grasping_tools {
         arma::colvec6 candidatePoint = candidatePoints.col(id(0,0));
 
         arma::mat intersections = _object.intersectRay(candidatePoint.rows(0, 2)+ 2*candidatePoint.rows(3, 5), candidatePoint.rows(0, 2) - candidatePoint.rows(3, 5));
-
-		if(intersections.n_cols == 2){
+		//std::cout << intersections << std::endl;
+		if(intersections.n_cols >= 2){
 			if(arma::norm(intersections.col(0).head(3)-intersections.col(1).head(3)) > mAperture){
 				return Grasp();
 			}

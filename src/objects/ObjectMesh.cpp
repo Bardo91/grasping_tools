@@ -63,13 +63,6 @@ grasping_tools::ObjectMesh::ObjectMesh(std::string _filename) {
     //viewer.registerKeyboardCallback(&grasping_tools::ObjectMesh::callbackKeyboard3dViewer,  *this, (void*)&viewer);
 }
 
-
-//void grasping_tools::ObjectMesh::callbackKeyboard3dViewer(const pcl::visualization::KeyboardEvent & _event, void * _ptrViewer) {
-//    if (_event.getKeySym() == "p" && _event.keyDown()) {
-//        mStop = false;
-//    }
-//}
-
 //---------------------------------------------------------------------------------------------------------------------
 grasping_tools::ObjectMesh::ObjectMesh(pcl::PointCloud<pcl::PointNormal>& _vertices, std::vector<pcl::Vertices>& _faces) {
 	mVertices = _vertices;
@@ -134,22 +127,6 @@ arma::mat grasping_tools::ObjectMesh::intersectRay(arma::colvec3 _p1, arma::colv
 		auto v2 = mVertices[face.vertices[1]];
         auto v3 = mVertices[face.vertices[2]];
 
-        //viewer.removeAllPointClouds();
-        //viewer.removeAllShapes();
-        //pcl::PointCloud<pcl::PointXYZ> cloud;
-        //cloud.push_back(pcl::PointXYZ(v1.x, v1.y, v1.z));
-        //cloud.push_back(pcl::PointXYZ(v2.x, v2.y, v2.z));
-        //cloud.push_back(pcl::PointXYZ(v3.x, v3.y, v3.z));
-        //viewer.addLine(cloud[0], cloud[1], "line1");
-        //viewer.addLine(cloud[0], cloud[2], "line2");
-        //viewer.addLine(cloud[1], cloud[2], "line3");
-        //viewer.addPointCloud<pcl::PointXYZ>(cloud.makeShared());
-        //viewer.spinOnce(30);
-        //
-        //pcl::PointXYZ p0(_p1[0],_p1[1],_p1[2]);
-        //pcl::PointXYZ p1(_p2[0],_p2[1],_p2[2]);
-        //viewer.addLine(p0,p1, "line");
-
 		arma::colvec3 intersection;
         arma::colvec ver1 = {v1.x,v1.y,v1.z}, ver2 = { v2.x,v2.y,v2.z }, ver3 = { v3.x,v3.y,v3.z };
         if (intersectRayTriangle(_p1, _p2, ver1, ver2, ver3, intersection)) {
@@ -158,16 +135,8 @@ arma::mat grasping_tools::ObjectMesh::intersectRay(arma::colvec3 _p1, arma::colv
             point.tail(3) = -arma::cross(ver2-ver3,ver1-ver3);
             point.tail(3) /= arma::norm(point.tail(3));
             intersections.insert_cols(intersections.n_cols, point);
-            //viewer.addSphere(pcl::PointXYZ(intersection[0], intersection[1], intersection[2]), 0.05, 0.5, 0.0, 0.0);
 		}
 
-        //std::cout << intersections << std::endl;
-        //mStop = true;
-        //while(mStop){
-        //    viewer.spinOnce(30);
-        //    std::this_thread::sleep_for(std::chrono::milliseconds(30));
-        //}
-        //std::cout <<  "Found: " << intersections.n_cols << std::endl;
 
 	}
 	return intersections;
