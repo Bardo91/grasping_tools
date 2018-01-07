@@ -37,7 +37,7 @@ namespace grasping_tools {
 		virtual void moveObject() = 0;
 
 	protected:
-		arma::mat44 	mPose;
+		arma::mat44 	mPose = arma::eye(4,4);
 		Eigen::Matrix4f mPoseEigen;		// Computed once 
 	};
 }	//	gpisGrasping

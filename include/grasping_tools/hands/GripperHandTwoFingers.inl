@@ -44,6 +44,10 @@ namespace grasping_tools {
 		} while (norm(p1 - p0) > 1e-3);
 		arma::colvec cpPos2 = p0;
 
+		if(arma::norm(cpPos1.head(3)-cpPos2.head(3)) > mAperture){
+			return Grasp();
+		}
+
 		std::vector<ContactPoint> cps;
 		arma::colvec4 values;
 		arma::mat44 covariances;
