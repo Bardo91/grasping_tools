@@ -83,14 +83,24 @@ namespace grasping_tools {
 
         arma::mat intersections = _object.intersectRay(candidatePoint.rows(0, 2)+ 2*candidatePoint.rows(3, 5), candidatePoint.rows(0, 2) - candidatePoint.rows(3, 5));
 
-        for(unsigned int i = 0; i < intersections.n_cols; i++){
-            ContactPoint cp(intersections.col(i).head(3), arma::eye(3, 3), intersections.col(i).tail(3), arma::eye(3, 3), eContactTypes::SFC, 1, 1, 1);
-            cps.push_back(cp);
-        }
+		if(intersections.n_cols == 2){
+			if(arma::norm(intersections.col(0).head(3)-intersections.col(1).head(3)) > mAperture){
+				return Grasp();
+			}
 
-        grasp.contactPoints(cps);
+			for(unsigned int i = 0; i < intersections.n_cols; i++){
+				ContactPoint cp(intersections.col(i).head(3), arma::eye(3, 3), intersections.col(i).tail(3), arma::eye(3, 3), eContactTypes::SFC, 1, 1, 1);
+				cps.push_back(cp);
+			}
 
-		return grasp;
+			grasp.contactPoints(cps);
+
+			return grasp;
+		}else{
+			return Grasp();
+		}
+
+		
 	}
 
 }
