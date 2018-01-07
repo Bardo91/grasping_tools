@@ -7,4 +7,5 @@
 #include <grasping_tools/objects/ObjectMesh.h>
 #include <grasping_tools/hands/GripperHandTwoFingers.h>
 #include <grasping_tools/hands/SimpleHandFourFingers.h>
+#include <grasping_tools/hands/Arm3DOF.h>
 #include <grasping_tools/visualization/visualization.h>
