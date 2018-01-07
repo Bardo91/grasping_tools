@@ -59,7 +59,13 @@ namespace grasping_tools {
 	/// \return matrix that holds all the points on each row.
 	arma::mat pointsInCircle(double _radius, arma::colvec3 _center, double _azimut, double _zenit, unsigned _nPoints);
 		
+	//--------------------------------------------------------------------------------------------------------------------
+	/// Generate points on a circle on 3D 666 TODO RENAME; SAME MANE DIFFERENT INPUTS!
 	arma::mat pointsInCircleNU(double _radius, arma::colvec3 _center, arma::colvec3 n, arma::colvec3 u, unsigned _nPoints);
+
+	//--------------------------------------------------------------------------------------------------------------------
+	/// Generate points on a circle on 3D
+	arma::mat pointsInCircle(double _radius, arma::colvec3 _center, arma::colvec3 _n, unsigned _nPoints);
 
 	/// Compute the rotation matrix to tansform an unitary vector A into B.
 	/// \param _a: vector to rotate.

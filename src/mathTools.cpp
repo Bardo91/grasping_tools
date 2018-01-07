@@ -87,6 +87,29 @@ namespace grasping_tools {
 	}
 
 	//--------------------------------------------------------------------------------------------------------------------
+	arma::mat pointsInCircle(double _radius, arma::colvec3 _center, arma::colvec3 _n, unsigned _nPoints){
+		if(arma::norm(_n) != 1){
+        	_n /= arma::norm(_n);
+		}
+
+        arma::mat r = arma::eye(3, 3);
+        double min_producto = 9999999;
+        int minIdx = 0;
+        for(unsigned int k = 0; k < 3; k++){
+            double prod = abs(arma::dot(_n, r.col(k)));
+            if( prod < min_producto ){
+                min_producto = prod;
+                minIdx = k ;
+            }
+        }
+
+        arma::colvec3 u = r.col(minIdx) - arma::dot(_n, r.col(minIdx))*_n;
+        u /= arma::norm(u);
+
+        return pointsInCircleNU(_radius, _center, _n, u, _nPoints);
+	}
+
+	//--------------------------------------------------------------------------------------------------------------------
 	mat rotUnitaryVectors(const vec & _a, const vec & _b) {
 		auto a = _a / norm(_a);
 		auto b = _b / norm(_b);
