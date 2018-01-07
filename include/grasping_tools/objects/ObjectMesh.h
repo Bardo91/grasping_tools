@@ -64,8 +64,23 @@ namespace grasping_tools {
         /// Get mesh info
         void mesh(pcl::PointCloud<pcl::PointNormal> &_vertices, std::vector<pcl::Vertices> &_faces);
 
+		/// Get mesh info
+		template<typename PointType_>
+        void vertices(pcl::PointCloud<PointType_> &_vertices){
+			for(auto &p:mVertices){
+				PointType_ point;
+				point.x = p.x;
+				point.y = p.y;
+				point.z = p.z;
+				_vertices.push_back(point);
+			}
+		}
+
         /// Get mesh info
         void mesh(pcl::PolygonMesh &_mesh);
+
+	protected:
+		virtual void moveObject();
 
 	private:
         pcl::PointCloud<pcl::PointNormal> mVertices;

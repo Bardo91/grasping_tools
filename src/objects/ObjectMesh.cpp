@@ -14,6 +14,10 @@
 #include <pcl/PCLPointCloud2.h>
 #include <pcl/common/centroid.h>
 
+#include <pcl/point_cloud.h>
+#include <pcl/common/transforms.h>
+#include <pcl/PCLPointCloud2.h>
+
 #include <thread>
 #include <chrono>
 
@@ -226,4 +230,21 @@ void grasping_tools::ObjectMesh::mesh(pcl::PointCloud<pcl::PointNormal>& _vertic
 //---------------------------------------------------------------------------------------------------------------------
 void grasping_tools::ObjectMesh::mesh(pcl::PolygonMesh &_mesh){
     _mesh = mMesh;
+}
+
+
+//---------------------------------------------------------------------------------------------------------------------
+void grasping_tools::ObjectMesh::moveObject(){
+	pcl::PointCloud<pcl::PointNormal> points;
+	pcl::fromPCLPointCloud2(mMesh.cloud, points);
+	pcl::transformPointCloud(points, points, mPoseEigen);
+	pcl::toPCLPointCloud2(points, mMesh.cloud);
+	mVertices = points;
+
+	Eigen::Vector4f centroid;
+	pcl::compute3DCentroid(mVertices, centroid);
+
+	mCentroid[0] = centroid[0];
+	mCentroid[1] = centroid[1];
+	mCentroid[2] = centroid[2];
 }

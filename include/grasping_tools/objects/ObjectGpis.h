@@ -50,6 +50,9 @@ namespace grasping_tools {
         /// Get mesh info
         void mesh(pcl::PolygonMesh &_mesh);
 
+	protected:
+		virtual void moveObject();
+
 	private:
 		void precomputeGpData();
 		double closestDistanceData(const arma::vec &_point);

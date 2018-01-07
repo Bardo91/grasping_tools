@@ -75,11 +75,29 @@ void grasping_tools::ObjectGpis::evaluate(const arma::vec3 & _point, arma::colve
 }
 
 //---------------------------------------------------------------------------------------------------------------------
+void grasping_tools::ObjectGpis::moveObject(){
+	if (mDataPoints.n_cols != 0) {
+		for (unsigned i = 0; i < mDataPoints.n_cols; i++) {
+			arma::colvec4 point, normal;
+			point.head(3) = mDataPoints.col(i).head(3); point(3) = 1;
+			normal.head(3) = mDataPoints.col(i).tail(3); normal(3) = 1;
+
+
+			point = mPose*point;
+			normal = mPose*normal;
+
+			mDataPoints.col(i).head(3) = point.head(3);
+			mDataPoints.col(i).tail(3) = normal.head(3);
+		}
+	}
+}
+
+//---------------------------------------------------------------------------------------------------------------------
 void grasping_tools::ObjectGpis::precomputeGpData() {
 	mCovarianceData = (*mGpKernel)(mDataPoints, true);
 
 	// Check if model is aligned, i.e., if has observations and stdDev and add the varying noise.
-	if (mObservationPoints.n_cols != 0) {
+	if (mDataPoints.n_cols != 0) {
 		for (unsigned i = 0; i < mDataPoints.n_cols; i++) {
 			double dist = closestDistanceData(arma::vec(mDataPoints.col(i)));
 			mCovarianceData(i, i) += mSigmaAlignment*exp(dist);

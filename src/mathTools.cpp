@@ -67,6 +67,26 @@ namespace grasping_tools {
 	}
 
 	//--------------------------------------------------------------------------------------------------------------------
+	mat pointsInCircleNU(double _radius, arma::colvec3 _center, arma::colvec3 n, arma::colvec3 u, unsigned _nPoints){
+		
+		colvec3 nxu = cross(u,n);
+
+		auto pCircle = [&](double t)->arma::colvec3 {
+			return _radius*cos(t)*u + _radius*sin(t)*nxu + _center;
+		};
+
+		mat points(3, _nPoints);
+
+		double incT = 2 * M_PI / _nPoints;
+		for (unsigned i = 0; i < _nPoints; i++) {
+			points.col(i) = pCircle(i*incT);
+		}
+
+		return points;
+
+	}
+
+	//--------------------------------------------------------------------------------------------------------------------
 	mat rotUnitaryVectors(const vec & _a, const vec & _b) {
 		auto a = _a / norm(_a);
 		auto b = _b / norm(_b);

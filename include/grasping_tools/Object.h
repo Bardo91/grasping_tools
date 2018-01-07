@@ -9,6 +9,7 @@
 #define GPISGRASPING_OBJECT_H_
 
 #include <armadillo>
+#include <Eigen/Eigen>
 
 namespace grasping_tools {
 	class Object {
@@ -16,6 +17,28 @@ namespace grasping_tools {
 		// Return the centroid of the object.
 		virtual arma::colvec3 center() = 0;
 
+		// Set a pose to an object.
+		void move(arma::mat44 &_pose){
+			mPose = _pose*mPose;
+			for(auto i = 0; i < 4; i++){
+				for(auto j=0; j <4; j++){
+					mPoseEigen(i,j) = mPose(i,j);
+				}
+			}
+			moveObject();
+		}
+
+		// Get object pose
+		arma::mat44 move(){
+			return mPose;
+		}
+
+	protected:
+		virtual void moveObject() = 0;
+
+	protected:
+		arma::mat44 	mPose = arma::eye(4,4);
+		Eigen::Matrix4f mPoseEigen;		// Computed once 
 	};
 }	//	gpisGrasping
 
