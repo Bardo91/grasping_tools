@@ -80,7 +80,7 @@ namespace gpis {
 		void newtonStep(const arma::vec &_x0, std::function<arma::vec(const arma::vec&)> _fplus, arma::vec &_x, arma::vec &_fPlus);
 		arma::vec thirdPoint(const arma::vec &_p1, const arma::vec &_p2, const arma::vec &_grad1, const arma::vec &_grad2, double _minDist, int _dir, double _height);
 		unsigned checkDistance(const arma::vec & _point, const arma::mat &_x, double _minDist, const std::vector<unsigned> &_excludeIndices);
-		void updateEdgeAngles(Frontier &_frontier, const arma::mat &_x, const arma::mat &_grads, const std::vector<unsigned> &_indices);
+        void updateEdgeAngles(Frontier &_frontier, const arma::mat &_x, const arma::mat &_grads, const std::vector<std::size_t> &_indices);
 		double edgeAngle(const arma::vec &_x, const arma::vec &_x1, const arma::vec &_x2, const arma::vec &_gradX);
 
 		void plotFace(const std::vector<unsigned> &_vertices, pcl::visualization::PCLVisualizer *_viewer);

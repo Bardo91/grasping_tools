@@ -466,7 +466,7 @@ namespace gpis {
 	 }
 	
 	//--------------------------------------------------------------------------------------------------------------------
-	void SurfaceGpis::updateEdgeAngles(Frontier & _frontier, const arma::mat & _x, const arma::mat & _grads, const std::vector<unsigned>& _updateIndices) {
+    void SurfaceGpis::updateEdgeAngles(Frontier & _frontier, const arma::mat & _x, const arma::mat & _grads, const std::vector<std::size_t>& _updateIndices) {
 		std::vector<double> updatedAngles;
 		for (unsigned i = 0; i < _updateIndices.size(); i++) {
 			unsigned ind, ind1, ind2;
