@@ -11,10 +11,8 @@
 #include <pcl/io/ply_io.h>
 #include <pcl/io/obj_io.h>
 #include <pcl/io/vtk_lib_io.h>
-#include <pcl/PCLPointCloud2.h>
-#include <pcl/common/centroid.h>
-
 #include <pcl/point_cloud.h>
+#include <pcl/common/centroid.h>
 #include <pcl/common/transforms.h>
 #include <pcl/PCLPointCloud2.h>
 
@@ -24,6 +22,7 @@
 //---------------------------------------------------------------------------------------------------------------------
 grasping_tools::ObjectMesh::ObjectMesh(std::string _filename) {
     // Load information from file.
+	std::cout << "Loading file: " << _filename << std::endl;
 	if (_filename.find(".ply") != std::string::npos) {
         if(pcl::io::loadPLYFile(_filename, mMesh) != 0) {
 			std::cerr << "Error loading mesh of object" << std::endl;
@@ -43,8 +42,8 @@ grasping_tools::ObjectMesh::ObjectMesh(std::string _filename) {
 		}
 	}
 	else{
-		assert(false);
 		std::cerr << "Unsupported filetype, please provide another filetype." << std::endl;
+		assert(false);
 		return;
 	}
 

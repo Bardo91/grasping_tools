@@ -67,4 +67,44 @@ namespace grasping_tools {
 
 		return combinations;
 	}
+
+	//-----------------------------------------------------------------------------------------------------------------
+	template<typename PointType_>
+	pcl::PolygonMesh convexHull(pcl::PointCloud<PointType_> &_cloud){
+		QHULL_LIB_CHECK;
+
+		// Compute convex hull
+		orgQhull::PointCoordinates points(3, "points");
+		std::vector<double> concatenationPoints;
+		for (unsigned i = 0; i < _cloud.size(); i++) {
+			concatenationPoints.push_back(_cloud[i].x);
+			concatenationPoints.push_back(_cloud[i].y);
+			concatenationPoints.push_back(_cloud[i].z);
+
+		}
+		
+		points.append(concatenationPoints);
+		try {
+			pcl::PolygonMesh mesh;  
+			pcl::toPCLPointCloud2(_cloud, mesh.cloud);
+
+			orgQhull::Qhull convexHull("", 3, _cloud.size(), &concatenationPoints[0], "Qt");
+			orgQhull::QhullFacetList facets = convexHull.facetList();
+			
+			for (orgQhull::QhullFacetList::iterator it = facets.begin(); it != facets.end(); ++it) {
+				orgQhull::QhullFacet f = *it;
+				if (!f.isGood()) continue;
+				auto vertices = f.vertices().toStdVector();
+				pcl::Vertices pclVertices;
+				for(auto &v:vertices){
+					pclVertices.vertices.push_back(v.id());
+				}
+				mesh.polygons.push_back(pclVertices);
+			}
+
+			return mesh;
+		}catch (orgQhull::QhullError e) {
+			return pcl::PolygonMesh();
+		}
+	}
 }

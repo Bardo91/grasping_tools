@@ -11,6 +11,26 @@
 #include <armadillo>
 #include <vector>
 
+#include <pcl/conversions.h>
+#include <pcl/PCLPointCloud2.h>
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
+#include <pcl/PolygonMesh.h>
+
+#include <libqhullcpp/Qhull.h>
+#include <libqhullcpp/RboxPoints.h>
+#include <libqhullcpp/QhullError.h>
+#include <libqhullcpp/Qhull.h>
+#include <libqhullcpp/QhullQh.h>
+#include <libqhullcpp/QhullFacet.h>
+#include <libqhullcpp/QhullFacetList.h>
+#include <libqhullcpp/QhullLinkedList.h>
+#include <libqhullcpp/QhullVertex.h>
+#include <libqhullcpp/QhullSet.h>
+#include <libqhullcpp/QhullVertexSet.h>
+
+#include <cassert>
+
 #ifndef M_PI
 	#define M_PI 3.14159265359
 #endif
@@ -115,6 +135,13 @@ namespace grasping_tools {
 	/// \param _intersection: intersectedpoint
 	/// \return true if intersects false if not
 	bool intersectSegmentTriangle(arma::colvec3 _p0, arma::colvec3 _p1, arma::colvec3 _v0, arma::colvec3 _v1, arma::colvec3 _v2, arma::colvec3 &_intersection);
+
+	/// Returns the convex hull of given mesh
+	pcl::PolygonMesh convexHull(pcl::PolygonMesh &_mesh);
+
+	/// Returns the convex hull of given point cloud
+	template<typename PointType_>
+	pcl::PolygonMesh convexHull(pcl::PointCloud<PointType_> &_mesh);
 }
 
 #include "mathTools.inl"

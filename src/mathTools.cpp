@@ -261,4 +261,11 @@ namespace grasping_tools {
 			return false;
 		}
 	}
+
+	//-----------------------------------------------------------------------------------------------------------------
+	pcl::PolygonMesh convexHull(pcl::PolygonMesh &_mesh){
+		pcl::PointCloud<pcl::PointXYZ> cloud;
+    	pcl::fromPCLPointCloud2(_mesh.cloud, cloud);
+		convexHull<pcl::PointXYZ>(cloud);
+	}
 }
