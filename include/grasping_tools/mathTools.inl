@@ -90,6 +90,8 @@ namespace grasping_tools {
 			orgQhull::Qhull convexHull("", 3, _cloud.size(), &concatenationPoints[0], "Qt");
 			orgQhull::QhullFacetList facets = convexHull.facetList();
 			
+			mesh.polygons.resize(facets.count());
+			int listCounter = 0; // 777 Because they are not standart iterators and cannot use distance to begin
 			for (auto it = facets.begin(); it != facets.end(); ++it) {
 				orgQhull::QhullFacet f = *it;
 				if (!f.isGood()) continue;
@@ -98,15 +100,18 @@ namespace grasping_tools {
 				for(auto &v:vertices){
 					pclVertices.vertices.push_back(v.id());
 				}
-				mesh.polygons.push_back(pclVertices);
+				mesh.polygons[listCounter] = pclVertices;
+				listCounter++;
 			}
 
 			auto verticesList = convexHull.vertexList();
+			vertices.resize(verticesList.count());
+			listCounter = 0;	// 777 Because they are not standart iterators and cannot use distance to begin
 			for (auto it = verticesList.begin(); it != verticesList.end(); ++it) {
 				if (!it->isValid()) continue;
 				auto vertex = it->point();
 				pcl::PointXYZ p(vertex[0], vertex[1], vertex[2]);
-				vertices.push_back(p);
+				vertices[listCounter++] = p;
 			}
 
 			pcl::toPCLPointCloud2(vertices, mesh.cloud);
