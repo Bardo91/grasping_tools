@@ -102,7 +102,7 @@ namespace grasping_tools {
 				}
 				mesh.polygons[listCounter] = pclVertices;
 				listCounter++;
-			}	// 666 FACETS SEEMS TO HAVE BAD RESULTS! BUT POINTS ARE GOOD.
+			}	// 666 FACETS SEEMS TO HAVE BAD RESULTS! BUT POINTS ARE GOOD. NEED TO MAP IDs SEE https://github.com/PointCloudLibrary/pcl/blob/master/surface/include/pcl/surface/impl/convex_hull.hpp
 
 			auto verticesList = convexHull.vertexList();
 			vertices.resize(verticesList.count());
