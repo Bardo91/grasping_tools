@@ -263,9 +263,9 @@ namespace grasping_tools {
 	}
 
 	//-----------------------------------------------------------------------------------------------------------------
-	pcl::PolygonMesh convexHull(pcl::PolygonMesh &_mesh){
+	bool convexHull(pcl::PolygonMesh &_mesh, pcl::PolygonMesh &_out){
 		pcl::PointCloud<pcl::PointXYZ> cloud;
     	pcl::fromPCLPointCloud2(_mesh.cloud, cloud);
-		convexHull<pcl::PointXYZ>(cloud);
+		return convexHull<pcl::PointXYZ>(cloud, _out);
 	}
 }

@@ -137,11 +137,11 @@ namespace grasping_tools {
 	bool intersectSegmentTriangle(arma::colvec3 _p0, arma::colvec3 _p1, arma::colvec3 _v0, arma::colvec3 _v1, arma::colvec3 _v2, arma::colvec3 &_intersection);
 
 	/// Returns the convex hull of given mesh
-	pcl::PolygonMesh convexHull(pcl::PolygonMesh &_mesh);
+	bool convexHull(pcl::PolygonMesh &_mesh, pcl::PolygonMesh &_out);
 
 	/// Returns the convex hull of given point cloud
 	template<typename PointType_>
-	pcl::PolygonMesh convexHull(pcl::PointCloud<PointType_> &_mesh);
+	bool convexHull(pcl::PointCloud<PointType_> &_cloud, pcl::PolygonMesh &_mesh);
 }
 
 #include "mathTools.inl"

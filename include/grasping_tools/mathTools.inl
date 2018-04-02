@@ -70,7 +70,7 @@ namespace grasping_tools {
 
 	//-----------------------------------------------------------------------------------------------------------------
 	template<typename PointType_>
-	pcl::PolygonMesh convexHull(pcl::PointCloud<PointType_> &_cloud){
+	bool convexHull(pcl::PointCloud<PointType_> &_cloud, pcl::PolygonMesh &_mesh){
 		QHULL_LIB_CHECK;
 
 		// Compute convex hull
@@ -84,41 +84,46 @@ namespace grasping_tools {
 		
 		points.append(concatenationPoints);
 		try {
-			pcl::PolygonMesh mesh;  
-			pcl::PointCloud<pcl::PointXYZ> vertices;
 
 			orgQhull::Qhull convexHull("", 3, _cloud.size(), &concatenationPoints[0], "Qt");
-			orgQhull::QhullFacetList facets = convexHull.facetList();
 			
-			mesh.polygons.resize(facets.count());
-			int listCounter = 0; // 777 Because they are not standart iterators and cannot use distance to begin
-			for (auto it = facets.begin(); it != facets.end(); ++it) {
-				orgQhull::QhullFacet f = *it;
-				if (!f.isGood()) continue;
-				auto vertices = f.vertices().toStdVector();
-				pcl::Vertices pclVertices;
-				for(auto &v:vertices){
-					pclVertices.vertices.push_back(v.id());
-				}
-				mesh.polygons[listCounter] = pclVertices;
-				listCounter++;
-			}	// 666 FACETS SEEMS TO HAVE BAD RESULTS! BUT POINTS ARE GOOD. NEED TO MAP IDs SEE https://github.com/PointCloudLibrary/pcl/blob/master/surface/include/pcl/surface/impl/convex_hull.hpp
-
+			
+			pcl::PointCloud<pcl::PointXYZ>::Ptr vertices(new pcl::PointCloud<pcl::PointXYZ>);
 			auto verticesList = convexHull.vertexList();
-			vertices.resize(verticesList.count());
-			listCounter = 0;	// 777 Because they are not standart iterators and cannot use distance to begin
+			vertices->resize(verticesList.count());
+			std::map<int, int> mapId;
+			int listCounter = 0;	// 777 Because they are not standart iterators and cannot use distance to begin
 			for (auto it = verticesList.begin(); it != verticesList.end(); ++it) {
 				if (!it->isValid()) continue;
 				auto vertex = it->point();
 				pcl::PointXYZ p(vertex[0], vertex[1], vertex[2]);
-				vertices[listCounter++] = p;
+				vertices->at(listCounter) = p;
+				mapId[it->id()] = listCounter;
+				listCounter++;
 			}
 
-			pcl::toPCLPointCloud2(vertices, mesh.cloud);
 
-			return mesh;
+			orgQhull::QhullFacetList facets = convexHull.facetList();
+			_mesh.polygons.resize(facets.count());
+			listCounter = 0; // 777 Because they are not standart iterators and cannot use distance to begin
+			for (auto it = facets.begin(); it != facets.end(); ++it) {
+				orgQhull::QhullFacet f = *it;
+				if (!f.isGood()) continue;
+				auto qvertices = f.vertices().toStdVector();
+				pcl::Vertices pclVertices;
+				for(auto &v:qvertices){
+					pclVertices.vertices.push_back(mapId[v.id()]);
+				}
+				_mesh.polygons[listCounter] = pclVertices;
+				listCounter++;
+			}	// 666 FACETS SEEMS TO HAVE BAD RESULTS! BUT POINTS ARE GOOD. NEED TO MAP IDs SEE https://github.com/PointCloudLibrary/pcl/blob/master/surface/include/pcl/surface/impl/convex_hull.hpp
+
+
+			pcl::toPCLPointCloud2(*vertices, _mesh.cloud);
+
+			return true;
 		}catch (orgQhull::QhullError e) {
-			return pcl::PolygonMesh();
+			return false;
 		}
 	}
 }
