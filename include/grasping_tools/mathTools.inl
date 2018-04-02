@@ -80,18 +80,17 @@ namespace grasping_tools {
 			concatenationPoints.push_back(_cloud[i].x);
 			concatenationPoints.push_back(_cloud[i].y);
 			concatenationPoints.push_back(_cloud[i].z);
-
 		}
 		
 		points.append(concatenationPoints);
 		try {
 			pcl::PolygonMesh mesh;  
-			pcl::toPCLPointCloud2(_cloud, mesh.cloud);
+			pcl::PointCloud<pcl::PointXYZ> vertices;
 
 			orgQhull::Qhull convexHull("", 3, _cloud.size(), &concatenationPoints[0], "Qt");
 			orgQhull::QhullFacetList facets = convexHull.facetList();
 			
-			for (orgQhull::QhullFacetList::iterator it = facets.begin(); it != facets.end(); ++it) {
+			for (auto it = facets.begin(); it != facets.end(); ++it) {
 				orgQhull::QhullFacet f = *it;
 				if (!f.isGood()) continue;
 				auto vertices = f.vertices().toStdVector();
@@ -101,6 +100,16 @@ namespace grasping_tools {
 				}
 				mesh.polygons.push_back(pclVertices);
 			}
+
+			auto verticesList = convexHull.vertexList();
+			for (auto it = verticesList.begin(); it != verticesList.end(); ++it) {
+				if (!it->isValid()) continue;
+				auto vertex = it->point();
+				pcl::PointXYZ p(vertex[0], vertex[1], vertex[2]);
+				vertices.push_back(p);
+			}
+
+			pcl::toPCLPointCloud2(vertices, mesh.cloud);
 
 			return mesh;
 		}catch (orgQhull::QhullError e) {
