@@ -102,7 +102,7 @@ namespace grasping_tools {
 				}
 				mesh.polygons[listCounter] = pclVertices;
 				listCounter++;
-			}
+			}	// 666 FACETS SEEMS TO HAVE BAD RESULTS! BUT POINTS ARE GOOD.
 
 			auto verticesList = convexHull.vertexList();
 			vertices.resize(verticesList.count());
