@@ -99,8 +99,38 @@ namespace grasping_tools {
 		}else{
 			return Grasp();
 		}
+	}
 
-		
+	//-----------------------------------------------------------------------------------------------------------------
+	template<>
+	inline  std::vector<Grasp> GripperHandTwoFingers::generateGrasps(ObjectMesh &_object, double _downsampleFactor){
+		// Generate grasp
+		std::vector<Grasp> grasps;
+
+        auto candidatePoints = _object.centroidFaces();
+
+		unsigned step = candidatePoints.n_cols*_downsampleFactor;
+		step = step<1? 1: step;
+
+		for(unsigned i = 0; i < candidatePoints.n_cols; i += step) {
+			arma::colvec6 candidatePoint = candidatePoints.col(i);
+			arma::mat intersections = _object.intersectRay(candidatePoint.rows(0, 2)+ 2*candidatePoint.rows(3, 5), candidatePoint.rows(0, 2) - candidatePoint.rows(3, 5));
+			//std::cout << intersections << std::endl;
+			if(intersections.n_cols >= 2){
+				if(arma::norm(intersections.col(0).head(3)-intersections.col(1).head(3)) < mAperture){
+        			std::vector<ContactPoint> cps;
+					for(unsigned int i = 0; i < intersections.n_cols; i++){
+						ContactPoint cp(intersections.col(i).head(3), arma::eye(3, 3), intersections.col(i).tail(3), arma::eye(3, 3), eContactTypes::SFC, 1, 1, 1);
+						cps.push_back(cp);
+					}
+					Grasp grasp;
+					grasp.contactPoints(cps);
+					grasps.push_back(grasp);
+				}
+			}
+		}
+
+		return grasps;
 	}
 
 }
