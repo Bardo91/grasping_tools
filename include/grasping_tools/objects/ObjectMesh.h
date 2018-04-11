@@ -32,6 +32,9 @@ namespace grasping_tools {
 		/// Return centroid 3D center of object.
 		arma::colvec3 center();
 
+		/// Get the min and max point that encloses boundaries of the object.
+		virtual void minMax(arma::colvec3 &_min, arma::colvec&_max);
+
 		/// Intersect a directed ray with the mesh.
 		/// \param _initpoint: point that defines the ray position.
 		/// \param _dir: vector that defines the direction of the ray.
@@ -90,6 +93,8 @@ namespace grasping_tools {
 		arma::colvec3 mCentroid;
 		bool mIsKdtreeInit = false;
         pcl::KdTreeFLANN<pcl::PointNormal> mKdTree;
+
+		pcl::PointNormal mMinPoint, mMaxPoint;
 
         //pcl::visualization::PCLVisualizer viewer;
         //bool mStop = false;

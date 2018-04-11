@@ -18,7 +18,7 @@ namespace grasping_tools {
 		Grasp generate(ObjectType_ &_object);
 
 		template<typename ObjectType_>
-		std::vector<Grasp> generateGrasps(ObjectType_ &_object, double _downsampleFactor);
+		std::vector<Grasp> generateGrasps(ObjectType_ &_object, double _resolution);
 
 	};
 }	//	gpisGrasping

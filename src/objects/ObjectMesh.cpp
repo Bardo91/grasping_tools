@@ -82,6 +82,12 @@ arma::colvec3 grasping_tools::ObjectMesh::center() {
 }
 
 //---------------------------------------------------------------------------------------------------------------------
+void grasping_tools::ObjectMesh::minMax(arma::colvec3 &_min, arma::colvec&_max){
+	_min = {mMinPoint.x, mMinPoint.y, mMinPoint.z};
+	_max = {mMaxPoint.x, mMaxPoint.y, mMaxPoint.z};
+}
+
+//---------------------------------------------------------------------------------------------------------------------
 arma::colvec3 grasping_tools::ObjectMesh::intersect(arma::colvec3 _initPoint, arma::colvec3 _dir) {
 	// Look for closest point.
     pcl::PointNormal pInit; pInit.x = _initPoint[0]; pInit.y = _initPoint[1]; pInit.z = _initPoint[2];
@@ -215,4 +221,6 @@ void grasping_tools::ObjectMesh::moveObject(){
 	mCentroid[0] = centroid[0];
 	mCentroid[1] = centroid[1];
 	mCentroid[2] = centroid[2];
+	
+	pcl::getMinMax3D(points, mMinPoint, mMaxPoint);
 }

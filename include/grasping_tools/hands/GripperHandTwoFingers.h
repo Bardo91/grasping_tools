@@ -28,7 +28,7 @@ namespace grasping_tools {
 		/// \param _object: templatized object to be grasped.
 		/// \return: generated grasp.
 		template<typename ObjectType_>
-		std::vector<Grasp> generateGrasps(ObjectType_ &_object, double _downsampleFactor);
+		std::vector<Grasp> generateGrasps(ObjectType_ &_object, double _resolution);
 
 		/// Given a grasp, generate a 3d meshed model for visualization purposes
 		/// \param _grasp: grasp to be shown

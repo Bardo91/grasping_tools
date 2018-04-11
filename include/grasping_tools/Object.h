@@ -14,10 +14,13 @@
 namespace grasping_tools {
 	class Object {
 	public:
-		// Return the centroid of the object.
+		/// Return the centroid of the object.
 		virtual arma::colvec3 center() = 0;
 
-		// Set a pose to an object.
+		/// Get the min and max point that encloses boundaries of the object.
+		virtual void minMax(arma::colvec3 &_min, arma::colvec&_max) {std::cout << "Not implemented" << std::endl;};
+
+		/// Set a pose to an object.
 		void move(arma::mat44 &_pose){
 			mPose = _pose*mPose;
 			for(auto i = 0; i < 4; i++){
@@ -28,7 +31,7 @@ namespace grasping_tools {
 			moveObject();
 		}
 
-		// Get object pose
+		/// Get object pose
 		arma::mat44 move(){
 			return mPose;
 		}
