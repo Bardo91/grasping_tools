@@ -33,6 +33,34 @@ namespace grasping_tools {
 		/// Given a grasp, generate a 3d meshed model for visualization purposes
 		/// \param _grasp: grasp to be shown
 		/// \param _rotation: define the orietnation of the grasp.
+		///
+		///	The method performs ray. 
+		///	Let be a ray tracing the first object. It generates 4 intersections called a, b, c and d.
+		/// The number of intersections should be always even.
+		/// From the figure it is intuitive that 3 "compressing" grasps are possible (a,b), (c,d) and (a,d).
+		/// If intersections are arranged in distance from the source. 
+		///
+		///					_________		___________
+		///				 a	|		| b	  c	|		   | d
+		///	>---------	 <--|		|--> <--|		   |-->
+		///					|		|		|		   |
+		///					|		|_______|		   |
+		///					|				 		   |
+		///					|__________________________|
+		///
+		/// In this other example we have (a,b), (c,d), (e,f), (a,d), (c,f), (a,f)
+		///					_________		___________				  _______________
+		///				 a	|		| b	  c	|		   | d			e |				| f
+		///	>---------	 <--|		|--> <--|		   |-->		   <--|				|-->
+		///					|		|		|		   |			  |				|
+		///					|		|_______|		   |______________|				|
+		///					|				 		   								|
+		///					|_______________________________________________________|
+		///
+		/// In general terms, 	N_intersections = N_folds*2
+		///						N_grasps = SUM(i=1 to N_folds) { i }
+		///
+		///
 		pcl::PolygonMesh generateHandModel(const Grasp &_grasp, double _rotation = 0);
 
 	private:

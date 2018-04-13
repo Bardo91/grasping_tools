@@ -11,6 +11,8 @@
 #include <grasping_tools/mathTools.h>
 #include <deque>
 
+#include <hecatonquiros/model_solvers/ModelSolverOpenRave.h>
+
 namespace grasping_tools {
 	template<>
 	inline Grasp GripperHandTwoFingers::generate<ObjectGpis>(ObjectGpis &_object) {
@@ -103,27 +105,27 @@ namespace grasping_tools {
 
 	//-----------------------------------------------------------------------------------------------------------------
 	template<>
-	inline  std::vector<Grasp> GripperHandTwoFingers::generateGrasps(ObjectMesh &_object, double _resolution){
+	inline  std::vector<Grasp> GripperHandTwoFingers::generateGrasps<ObjectMesh>(ObjectMesh &_object, double _resolution){
 
 		// Get boundary of object
 		arma::colvec3 min, max;
 		_object.minMax(min, max);
-		arma::colvec3 sizes = 	{max[0] - min[0], max[1]-min[1], max[2] - min[2]};
-		arma::colvec3 center = 	{max[0] - min[0], max[1]-min[1], max[2] - min[2]}; center /= 2;
+		arma::colvec3 sizes = 	{(max[0] - min[0]), (max[1]-min[1]), (max[2] - min[2])};
+		//arma::colvec3 center = 	{max[0] - min[0], max[1]-min[1], max[2] - min[2]}; center /= 2;
 
 		// Generate N points equally distributed on the faces of a centered cube.
 		arma::mat initPointsPlusNormals;
 		
-		unsigned nX = (sizes[0])/_resolution;
-		unsigned nY = (sizes[1])/_resolution;
-		unsigned nZ = (sizes[2])/_resolution;
+		int nX = (sizes[0])/_resolution;
+		int nY = (sizes[1])/_resolution;
+		int nZ = (sizes[2])/_resolution;
 
 		// (-)X normal faces
 		for(unsigned i = 0; i < nY; i++){
 			for(unsigned j = 0; j < nZ; j++){
 				arma::colvec6 pointPlusNormal = {-sizes[0]/2,
-												nY*_resolution/2 + i*_resolution,
-												nZ*_resolution/2 + j*_resolution,
+												-nY*_resolution/2 + i*_resolution,
+												-nZ*_resolution/2 + j*_resolution,
 												1,
 												0,
 												0};
@@ -137,9 +139,9 @@ namespace grasping_tools {
 		// (-)Y normal faces
 		for(unsigned i = 0; i < nX; i++){
 			for(unsigned j = 0; j < nZ; j++){
-				arma::colvec6 pointPlusNormal = {nX*_resolution/2 + i*_resolution,
+				arma::colvec6 pointPlusNormal = {-nX*_resolution/2 + i*_resolution,
 												-sizes[1]/2,
-												nZ*_resolution/2 + j*_resolution,
+												-nZ*_resolution/2 + j*_resolution,
 												0,
 												1,
 												0};
@@ -153,8 +155,8 @@ namespace grasping_tools {
 		// (-)Z normal faces
 		for(unsigned i = 0; i < nX; i++){
 			for(unsigned j = 0; j < nY; j++){
-				arma::colvec6 pointPlusNormal = {nX*_resolution/2 + i*_resolution,
-												nY*_resolution/2 + j*_resolution,
+				arma::colvec6 pointPlusNormal = {-nX*_resolution/2 + i*_resolution,
+												-nY*_resolution/2 + j*_resolution,
 												-sizes[2]/2,
 												0,
 												0,
@@ -174,12 +176,29 @@ namespace grasping_tools {
 		}
 		initPointsPlusNormals.rows(3,5) = objectPose.cols(0,2).rows(0,2)*initPointsPlusNormals.rows(3,5);
 
+		//#ifdef HAS_OPENRAVE
+		//	//auto boxHandle = hecatonquiros::ModelSolverOpenRave::getEnvironment()->drawbox(	OpenRAVE::RaveVector<float>(objectPose.col(3)[0], objectPose.col(3)[1], objectPose.col(3)[2]),
+		//	//																	OpenRAVE::RaveVector<float>(sizes[0]/2, sizes[1]/2, sizes[2]/2));
+		//	std::vector<OpenRAVE::GraphHandlePtr> raysHandle;
+		//#endif
+
+
+		// Generate candidate grasps
+		std::vector<Grasp> grasps;
+
 		// Trace rays
 		for(unsigned i = 0; i < initPointsPlusNormals.n_cols; i++) {
 			arma::colvec6 initPointPlusNormal = initPointsPlusNormals.col(i);
-			arma::mat intersections = _object.intersect(initPointsPlusNormals.rows(0,2), initPointsPlusNormals.rows(3,5));
 
-			if(intersections.n_cols%2 == 0){
+			//#ifdef HAS_OPENRAVE
+			//	OpenRAVE::RaveVector<float> p1 = {initPointPlusNormal[0], initPointPlusNormal[1], initPointPlusNormal[2]}, p2;
+			//	OpenRAVE::RaveVector<float> dir = {initPointPlusNormal[3], initPointPlusNormal[4], initPointPlusNormal[5]};
+			//	p2 = p1 + dir*0.03;
+			//	raysHandle.push_back(hecatonquiros::ModelSolverOpenRave::getEnvironment()->drawarrow(p1, p2,0.001,OpenRAVE::RaveVector< float >(1, 0, 0, 1)));
+			//#endif
+			arma::mat intersections = _object.intersectRay(initPointPlusNormal.rows(0,2), initPointPlusNormal.rows(0,2)+initPointPlusNormal.rows(3,5));
+			
+			if(intersections.n_cols > 1 && intersections.n_cols%2 == 0){
 				//	Example of ray tracing. Let be a ray tracing an object, it generates 4 intersections called a, b, c and d.
 				//  The number of intersections should be always even.
 				//  From the figure it is intuitive that 3 "compressing" grasps are possible (a,b), (c,d) and (a,d).
@@ -216,8 +235,6 @@ namespace grasping_tools {
 				std::sort(arrangedIds.begin(), arrangedIds.end(), 
 						[](std::pair<int, float> &_a, std::pair<int, float> &_b){ return _a.second < _b.second; });
 
-				// Generate candidate grasps
-				std::vector<Grasp> grasps;
 				int nFolds = intersections.n_cols/2;
 				for(unsigned jumper = 1; jumper <= nFolds; jumper+=2){
 					for(unsigned initId = 0; initId +jumper < intersections.n_cols; initId += 2){
@@ -225,7 +242,7 @@ namespace grasping_tools {
 						auto p2 = intersections.col(initId+jumper);
 						
 						// Check aperture of gripper
-						if(arma::norm(p1-p2) < mAperture){	// 666 TODO take into account finger size
+						if(arma::norm(p1.head(3)-p2.head(3)) < mAperture){	// 666 TODO take into account finger size
 							std::vector<ContactPoint> cps;
 							cps.push_back(ContactPoint(p1.head(3), arma::eye(3, 3), p1.tail(3), arma::eye(3, 3), eContactTypes::SFC, 1, 1, 1));
 							cps.push_back(ContactPoint(p2.head(3), arma::eye(3, 3), p2.tail(3), arma::eye(3, 3), eContactTypes::SFC, 1, 1, 1));
@@ -238,6 +255,7 @@ namespace grasping_tools {
 				}
 			}
 		}
+		return grasps;
 	}
 
 }

@@ -93,6 +93,8 @@ arma::colvec3 grasping_tools::ObjectMesh::intersect(arma::colvec3 _initPoint, ar
     pcl::PointNormal pInit; pInit.x = _initPoint[0]; pInit.y = _initPoint[1]; pInit.z = _initPoint[2];
     auto vertexId = closestVertexId(pInit);
 
+	assert(vertexId != -1);
+
 	std::vector<pcl::Vertices> facesSharedVertex;
 	// Choose closest faces.
 	for (auto &face : mFaces) {
@@ -178,7 +180,11 @@ pcl::PointNormal grasping_tools::ObjectMesh::closestVertex(const pcl::PointNorma
 
 //---------------------------------------------------------------------------------------------------------------------
 int grasping_tools::ObjectMesh::closestVertexId(const pcl::PointNormal &_p) {
-	if (mIsKdtreeInit) {
+	if (!mIsKdtreeInit) {
+		std::cout << mVertices.size() << std::endl;
+		if(mVertices.size() == 0){
+			return -1;
+		}
 		mKdTree.setInputCloud(mVertices.makeShared());
 		mIsKdtreeInit = true;
 	}
