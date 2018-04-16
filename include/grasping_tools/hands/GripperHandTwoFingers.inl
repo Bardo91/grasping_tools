@@ -169,7 +169,8 @@ namespace grasping_tools {
 		}
 
 		// Rotate points with pose
-		arma::mat44 objectPose = _object.move();
+		arma::mat44 objectPose;
+		_object.pose(objectPose);
 		initPointsPlusNormals.rows(0,2) = objectPose.cols(0,2).rows(0,2)*initPointsPlusNormals.rows(0,2);
 		for(unsigned i = 0; i < initPointsPlusNormals.n_cols;i++){
 			initPointsPlusNormals.col(i).rows(0,2) +=  objectPose.col(3).rows(0,2);

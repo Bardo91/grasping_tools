@@ -31,9 +31,25 @@ namespace grasping_tools {
 			moveObject();
 		}
 
+		/// Set a pose to an object.
+		void move(Eigen::Matrix4f &_pose){
+			mPoseEigen = _pose*mPoseEigen;
+			for(auto i = 0; i < 4; i++){
+				for(auto j=0; j <4; j++){
+					mPose(i,j) = mPoseEigen(i,j);
+				}
+			}
+			moveObject();
+		}
+
 		/// Get object pose
-		arma::mat44 move(){
-			return mPose;
+		void pose(arma::mat44 &_pose){
+			_pose = mPose;
+		}
+
+		/// Get object pose
+		void pose(Eigen::Matrix4f &_pose){
+			_pose = mPoseEigen;
 		}
 
 	protected:
@@ -41,7 +57,7 @@ namespace grasping_tools {
 
 	protected:
 		arma::mat44 	mPose = arma::eye(4,4);
-		Eigen::Matrix4f mPoseEigen;		// Computed once 
+		Eigen::Matrix4f mPoseEigen = Eigen::Matrix4f::Identity();		// Computed once 
 	};
 }	//	gpisGrasping
 
