@@ -39,25 +39,43 @@ namespace grasping_tools {
 
 	class   ContactPoint {
 	public:
+		/// Contructor of contact point
+		/// \param _position:
+		/// \param _covPos:
+		/// \param _n:
+		/// \param _covNormal_
+		/// \param _contactType
+		/// \param _maxForce
+		/// \param _friction:
+		/// \param _spinFriction:		
 		ContactPoint(const arma::colvec3 &_position, const arma::mat33 &_covPos, const arma::colvec3 &_n, const arma::mat33 &_covNormal, const eContactTypes _contactType, double _maxForce, double _friction = 0, double _spinFriction = 0);
 
+		/// Returns the position of the contact point
 		arma::colvec3	position()	const;
+		/// Returns the covariance of the position
 		arma::mat33		posCov()	const;
+		/// Returns the normal of the contact point
 		arma::colvec3	normal()	const;
+		/// Returns the covariance of the normal
 		arma::mat33		norCov()	const;
+		/// Returns the coordinate frame of the contact point
 		arma::mat33		frame();
 
+		/// Returns the type of contact (PFL, PWF, SFC)
 		eContactTypes	contactType()		const;
+		/// Returns the selection matrix according to the contact type
 		arma::mat		selectionMatrix()	const;
 
+		/// Returns the maximum force exerted in the contact point
 		double			maxForce()		const;
+		/// Returns the friction defined in the contact point
 		double			friction()		const;
+		/// Returns the spin friction defined in the contact point
 		double			spinFriction()	const;
 
 		/// Compute the 6-dimensional cone resulting of the union of the friction cones of the contact points.
 		/// \param _pointsPerContact: number of points used to approximate the each of the contact friction crones
 		arma::mat aprxWrenchCone(unsigned _pointsPerContact);
-
 		arma::mat forceCone(unsigned _pointsPerContact);
 
 		/// Sample new cp using covariances

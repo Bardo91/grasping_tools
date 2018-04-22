@@ -37,6 +37,19 @@ namespace grasping_tools {
 	//-----------------------------------------------------------------------------------------------------------------
 	void Grasp::contactPoints(std::vector<ContactPoint>& _contactPoints) {
 		mContactPoints = _contactPoints;
+		
+		if(mQHull != nullptr){
+			delete mQHull;
+			mQHull = nullptr;
+		}
+
+		mComputedGraspMatrix		= false;
+		mComputedQualityMetrics		= false;
+		mComputedForceClosure		= false;
+		mComputedConvexCone			= false;
+		mComputedApprxLmrw			= false;
+		mComputedLmrw				= false;
+		mComputedTaskWrench 		= false;
 	}
 
 	//-----------------------------------------------------------------------------------------------------------------
@@ -176,67 +189,62 @@ namespace grasping_tools {
 
 	//-----------------------------------------------------------------------------------------------------------------
 	double Grasp::apprLmrw() {
-		if (mComputedApprxLmrw) {
-			return mLmrw;
-		}
-		else {
-			if (mContactPoints.size() == 0)
-				return false;
+		#warning Grasp::apprLmrw() function is deprecated. Use Grasp::lmrw() 
+		assert(false);
 
-			IterativeGraspWrenchSpace gws(*this, IterativeGraspWrenchSpace::eForceLimitType::TotalSource);
-			gws.epsilon(1e-3);
-			mLmrw = gws.lmrw();
+		// if (mComputedApprxLmrw) {
+		// 	return mLmrw;
+		// }
+		// else {
+		// 	if (mContactPoints.size() == 0)
+		// 		return false;
 
-            if (mLmrw == 0.0) {
-				mHasForceClosure = false;
-			}
-			else {
-				mHasForceClosure = true;
-			}
+		// 	IterativeGraspWrenchSpace gws(*this, IterativeGraspWrenchSpace::eForceLimitType::TotalSource);
+		// 	gws.epsilon(1e-3);
+		// 	mLmrw = gws.lmrw();
 
-			mComputedForceClosure = true;
-			mComputedApprxLmrw = true;
+        //     if (mLmrw == 0.0) {
+		// 		mHasForceClosure = false;
+		// 	}
+		// 	else {
+		// 		mHasForceClosure = true;
+		// 	}
 
-			return mLmrw;
-		}
+		// 	mComputedForceClosure = true;
+		// 	mComputedApprxLmrw = true;
+
+		// 	return mLmrw;
+		// }
 	}
 
 	//-----------------------------------------------------------------------------------------------------------------
 	double Grasp::lmrw(){
-		mComputedLmrw = false;
 		if (mComputedLmrw) {
 			return mLmrw;
 		}
 		else {
-            if (mContactPoints.size() == 0)
-				return false;
+			mComputedLmrw = false;
+            if (mContactPoints.size() == 0){
+				mLmrw = 0;
+				mHasForceClosure = false;
+				return mLmrw;
+			}
 
-            QHULL_LIB_CHECK;
-			// Compute wrenches
-            auto wrenchesCones = aprxWrenchCone(8);
+			if(mQHull == nullptr){
+				if(!prepareQhull()){
+					std::cout << "Error computing convex hull.\n" <<std::endl; //<< e.what()  << std::endl;
+					mLmrw = 0;
+					mHasForceClosure = false;
+					return mLmrw;
+				}
+			}
 
-			// Compute convex hull
-            orgQhull::PointCoordinates points(6, "wrenches cone");
-            std::vector<double> concatenationPoints;
-            for (unsigned i = 0; i < wrenchesCones.n_cols; i++) {
-                concatenationPoints.push_back(wrenchesCones.col(i)[0]);
-                concatenationPoints.push_back(wrenchesCones.col(i)[1]);
-                concatenationPoints.push_back(wrenchesCones.col(i)[2]);
-                concatenationPoints.push_back(wrenchesCones.col(i)[3]);
-                concatenationPoints.push_back(wrenchesCones.col(i)[4]);
-                concatenationPoints.push_back(wrenchesCones.col(i)[5]);
-
-            }
-            points.append(concatenationPoints);
             try {
-                orgQhull::Qhull convexHull("", 6, wrenchesCones.n_cols, &concatenationPoints[0], "Qt");
-				orgQhull::QhullFacetList facets = convexHull.facetList();
+				orgQhull::QhullFacetList facets = mQHull->facetList();
                 double minDistance = 99999999;
                 int minIdx = 0;
                 int counterIdx = 0;
-                orgQhull::PointCoordinates originCoordinates(6, "wrenches origin");
-                std::vector<double> originstd = { 0.0,0.0,0.0,0.0,0.0,0.0, };
-                originCoordinates.append(originstd);
+                std::vector<double> originstd = { 0.0,0.0,0.0,0.0,0.0,0.0};
 
                 orgQhull::QhullPoint origin6d(6, &originstd[0]);
                 //std::cout << "Num of facets of CH is " << facets.size() << std::endl;
@@ -282,6 +290,47 @@ namespace grasping_tools {
             }
         }
 	}
+	
+	//-----------------------------------------------------------------------------------------------------------------
+	std::vector<double> Grasp::taskWrenches(){
+		if (mComputedTaskWrench) {
+			return mTaskWrench;
+		}
+		else {
+			mComputedTaskWrench = false;
+            if (mContactPoints.size() == 0)
+				return {};
+
+			if(mQHull == nullptr){
+				if(!prepareQhull()){
+					std::cout << "Error computing convex hull.\n" <<std::endl; //<< e.what()  << std::endl;
+					return {};
+				}
+			}
+
+            try {
+				#warning TODO Grasp::taskWrenches method not implemented yet!
+				return {};
+				
+				orgQhull::QhullFacetList facets = mQHull->facetList();
+
+				mTaskWrench = {0.0,0.0,0.0,0.0,0.0,0.0};
+				
+				for (orgQhull::QhullFacetList::iterator it = facets.begin(); it != facets.end(); ++it) {
+                    orgQhull::QhullFacet f = *it;
+                    if (!f.isGood()) continue;
+                    orgQhull::QhullHyperplane hyperPlane = f.hyperplane();
+                }
+
+                mComputedForceClosure = true;
+
+                return mTaskWrench;
+            }catch (orgQhull::QhullError e) {
+                std::cout << "Error computing convex hull. Error msg: \n" <<std::endl; //<< e.what()  << std::endl;
+                return {};
+            }
+        }
+	}
 
 	//-----------------------------------------------------------------------------------------------------------------
 	double Grasp::probabilityForceClosure(unsigned _samples) {
@@ -321,16 +370,46 @@ namespace grasping_tools {
 		mHasForceClosure		= _grasp.mHasForceClosure;
 		mLmrw					= _grasp.mLmrw;
 		
+		mQHull					= nullptr;
+		
 		mComputedGraspMatrix	= _grasp.mComputedGraspMatrix;
 		mComputedQualityMetrics	= _grasp.mComputedQualityMetrics;
 		mComputedForceClosure	= _grasp.mComputedForceClosure;
 		mComputedConvexCone		= _grasp.mComputedConvexCone;
 		mComputedApprxLmrw		= _grasp.mComputedApprxLmrw;
 		mComputedLmrw			= _grasp.mComputedLmrw;
+		mComputedTaskWrench		= _grasp.mComputedTaskWrench;
 	}
 
 	//-----------------------------------------------------------------------------------------------------------------
 	void Grasp::checkForceClosure() {
         lmrw();
+	}
+
+	//-----------------------------------------------------------------------------------------------------------------
+	bool Grasp::prepareQhull(){
+		QHULL_LIB_CHECK;
+		// Compute wrenches
+		auto wrenchesCones = aprxWrenchCone(8);
+
+		// Compute convex hull
+		orgQhull::PointCoordinates points(6, "wrenches cone");
+		std::vector<double> concatenationPoints;
+		for (unsigned i = 0; i < wrenchesCones.n_cols; i++) {
+			concatenationPoints.push_back(wrenchesCones.col(i)[0]);
+			concatenationPoints.push_back(wrenchesCones.col(i)[1]);
+			concatenationPoints.push_back(wrenchesCones.col(i)[2]);
+			concatenationPoints.push_back(wrenchesCones.col(i)[3]);
+			concatenationPoints.push_back(wrenchesCones.col(i)[4]);
+			concatenationPoints.push_back(wrenchesCones.col(i)[5]);
+
+		}
+		points.append(concatenationPoints);
+		try {
+			mQHull = new orgQhull::Qhull("", 6, wrenchesCones.n_cols, &concatenationPoints[0], "Qt");
+			return true;
+		}catch (orgQhull::QhullError e) {
+			return false;
+		}
 	}
 }
