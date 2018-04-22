@@ -68,10 +68,10 @@ else()
 	MESSAGE( FATAL_ERROR "Couldnt Add PCL and/or it's dependencies")
 endif()
 
-find_package(catkin COMPONENTS roscpp hecatonquiros)
+find_package(catkin COMPONENTS roscpp)
 if(${catkin_FOUND})
 	catkin_package(
-	  	CATKIN_DEPENDS roscpp hecatonquiros
+	  	CATKIN_DEPENDS roscpp
 		INCLUDE_DIRS include
 	)
 endif(${catkin_FOUND})

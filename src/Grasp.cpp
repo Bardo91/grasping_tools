@@ -39,7 +39,6 @@ namespace grasping_tools {
 		mContactPoints = _contactPoints;
 		
 		if(mQHull != nullptr){
-			delete mQHull;
 			mQHull = nullptr;
 		}
 
@@ -404,7 +403,7 @@ namespace grasping_tools {
 		mHasForceClosure		= _grasp.mHasForceClosure;
 		mLmrw					= _grasp.mLmrw;
 		
-		mQHull					= nullptr;
+		mQHull					= _grasp.mQHull;
 		
 		mComputedGraspMatrix	= _grasp.mComputedGraspMatrix;
 		mComputedQualityMetrics	= _grasp.mComputedQualityMetrics;
@@ -440,7 +439,7 @@ namespace grasping_tools {
 		}
 		points.append(concatenationPoints);
 		try {
-			mQHull = new orgQhull::Qhull("", 6, wrenchesCones.n_cols, &concatenationPoints[0], "Qt");
+			mQHull = std::shared_ptr<orgQhull::Qhull>(new orgQhull::Qhull("", 6, wrenchesCones.n_cols, &concatenationPoints[0], "Qt"));
 			return true;
 		}catch (orgQhull::QhullError e) {
 			return false;

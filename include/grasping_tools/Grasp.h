@@ -13,6 +13,7 @@
 
 #include <grasping_tools/ContactPoint.h>
 #include <grasping_tools/Object.h>
+#include <memory>
 
 // Forward declaration
 namespace orgQhull{
@@ -112,7 +113,7 @@ namespace grasping_tools {
 		double mLmrw;
 		std::vector<double> mTaskWrench;
 
-		orgQhull::Qhull *mQHull = nullptr;
+		std::shared_ptr<orgQhull::Qhull> mQHull = nullptr;
 
 		bool mComputedGraspMatrix		= false;
 		bool mComputedQualityMetrics	= false;
