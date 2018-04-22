@@ -68,13 +68,14 @@ else()
 	MESSAGE( FATAL_ERROR "Couldnt Add PCL and/or it's dependencies")
 endif()
 
-find_package(catkin)
+find_package(catkin COMPONENTS roscpp hecatonquiros)
 if(${catkin_FOUND})
 	catkin_package(
-	  	CATKIN_DEPENDS roscpp
+	  	CATKIN_DEPENDS roscpp hecatonquiros
 		INCLUDE_DIRS include
 	)
 endif(${catkin_FOUND})
+
 
 #########################################
 ######			Compile extra Libraries 		   ######
@@ -82,6 +83,10 @@ endif(${catkin_FOUND})
 
 add_subdirectory(dep/qhull)
 add_subdirectory(dep/gpis)
+
+
+add_definitions(-g -O0)
+
 
 #########################################
 ######			Library 		   ######
@@ -116,6 +121,9 @@ target_link_libraries(${PROJECT_NAME} LINK_PUBLIC ${Boost_LIBRARIES})
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${PCL_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} LINK_PUBLIC ${PCL_LIBRARIES})
+
+target_include_directories(${PROJECT_NAME} PUBLIC ${catkin_INCLUDE_DIRS})
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} )
 
 #########################################
 ######			   TESTS           ######

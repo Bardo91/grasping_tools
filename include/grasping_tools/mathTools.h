@@ -139,6 +139,21 @@ namespace grasping_tools {
 	/// Returns the convex hull of given mesh
 	bool convexHull(pcl::PolygonMesh &_mesh, pcl::PolygonMesh &_out);
 
+	/// Intersect an n-dimensional facet with a n-dimensional ray
+	/// \param _facetVertices: a matrix containing the vertices of the n-dimensional facet by columns
+	/// \param _ray: n-dimensional ray to intersect with the facet (Assumed to be in the origin)
+	/// \param _cutPoint: cut point if intersected
+	/// \return true if the ray intersects
+	bool facetIntersection(arma::mat &_facetVertices, arma::colvec &_ray, arma::colvec &_cutPoint);
+
+	/// Intersect an n-dimensional facet with a n-dimensional ray
+	/// \param _facetVertices: a matrix containing the vertices of the n-dimensional facet by columns
+	/// \param _rayOrigin: origin of n-dimensional ray to intersect with the facet.
+	/// \param _rayEnd: end of n-dimensional ray to intersect with the facet.
+	/// \param _cutPoint: cut point if intersected
+	/// \return true if the ray intersects
+	bool facetIntersection(arma::mat &_facetVertices, arma::colvec &_rayOrigin, arma::colvec &_rayEnd, arma::colvec &_cutPoint);
+
 	/// Returns the convex hull of given point cloud
 	template<typename PointType_>
 	bool convexHull(pcl::PointCloud<PointType_> &_cloud, pcl::PolygonMesh &_mesh);

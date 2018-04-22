@@ -268,4 +268,16 @@ namespace grasping_tools {
     	pcl::fromPCLPointCloud2(_mesh.cloud, cloud);
 		return convexHull<pcl::PointXYZ>(cloud, _out);
 	}
+
+	//-----------------------------------------------------------------------------------------------------------------
+	bool facetIntersection(arma::mat &_facetVertices, arma::colvec &_ray, arma::colvec &_cutPoint){
+		arma::colvec origin(_ray.n_rows, fill::zeros);
+		return facetIntersection(_facetVertices, origin, _ray, _cutPoint);
+	}
+
+	//-----------------------------------------------------------------------------------------------------------------
+	bool facetIntersection(arma::mat &_facetVertices, arma::colvec &_rayOrigin, arma::colvec &_rayEnd, arma::colvec &_cutPoint){
+		#warning  TODO facetIntersection() seems to work only with points centered in the origin. NEED TO CHECK
+		return false;
+	}
 }

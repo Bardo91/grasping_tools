@@ -309,20 +309,54 @@ namespace grasping_tools {
 			}
 
             try {
-				#warning TODO Grasp::taskWrenches method not implemented yet!
-				return {};
+				#warning TODO Grasp::taskWrenches method not tested yet!
 				
 				orgQhull::QhullFacetList facets = mQHull->facetList();
 
-				mTaskWrench = {0.0,0.0,0.0,0.0,0.0,0.0};
-				
+				mTaskWrench = {0.0,0.0,0.0,0.0,0.0,0.0, 0.0,0.0,0.0,0.0,0.0,0.0};
+				arma::mat basisAxis(6,6,arma::fill::eye);
+				arma::mat basisAxisNeg = -basisAxis;
+				basisAxis.insert_cols(basisAxis.n_cols, basisAxisNeg);
+
+				std::vector<double> minAlphas = {9999.0, 9999.0, 9999.0, 9999.0, 9999.0, 9999.0, -9999.0, -9999.0, -9999.0, -9999.0, -9999.0, -9999.0};
+
 				for (orgQhull::QhullFacetList::iterator it = facets.begin(); it != facets.end(); ++it) {
                     orgQhull::QhullFacet f = *it;
                     if (!f.isGood()) continue;
                     orgQhull::QhullHyperplane hyperPlane = f.hyperplane();
+
+					auto qNormal = hyperPlane.coordinates();
+					arma::colvec facetNormal = {qNormal[0], qNormal[1], qNormal[2], qNormal[3], qNormal[4], qNormal[5]};
+
+
+					// For each coordinate
+					for(unsigned i = 0; i < 12; i++){
+						double alpha = -hyperPlane.offset()/arma::dot(facetNormal, basisAxis.col(i));
+						if(alpha > 0){
+							if(i < 6){
+								if(alpha < minAlphas[i]){
+									minAlphas[i] = alpha;
+									mTaskWrench[i] = alpha;
+								}
+							}else{
+								alpha *=-1;
+								if(alpha > minAlphas[i]){
+									minAlphas[i] = alpha;
+									mTaskWrench[i] = alpha;
+								}
+							}
+						}
+					}
+
                 }
 
                 mComputedForceClosure = true;
+
+				for(auto &task: mTaskWrench){
+					if(task == 0){
+						mHasForceClosure = false;
+					}
+				}
 
                 return mTaskWrench;
             }catch (orgQhull::QhullError e) {

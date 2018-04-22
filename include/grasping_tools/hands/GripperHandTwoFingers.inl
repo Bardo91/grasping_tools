@@ -11,7 +11,7 @@
 #include <grasping_tools/mathTools.h>
 #include <deque>
 
-#include <hecatonquiros/model_solvers/ModelSolverOpenRave.h>
+//#include <hecatonquiros/model_solvers/ModelSolverOpenRave.h>
 
 namespace grasping_tools {
 	template<>
