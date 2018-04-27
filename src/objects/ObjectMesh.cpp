@@ -58,6 +58,8 @@ grasping_tools::ObjectMesh::ObjectMesh(std::string _filename) {
 	mCentroid[0] = centroid[0];
 	mCentroid[1] = centroid[1];
 	mCentroid[2] = centroid[2];
+	
+	pcl::getMinMax3D(mVertices, mMinPoint, mMaxPoint);
 
     //viewer.registerKeyboardCallback(&grasping_tools::ObjectMesh::callbackKeyboard3dViewer,  *this, (void*)&viewer);
 }
