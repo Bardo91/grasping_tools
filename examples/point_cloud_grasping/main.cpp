@@ -99,8 +99,8 @@ int main(int _argc, char** _argv){
 
     for(unsigned i = 0; i < grasps.size() ; i++){
         auto cps = grasps[i].contactPoints();
-        //if(!grasps[i].hasForceClosure())
-        //    continue;
+        if(!grasps[i].hasForceClosure())
+           continue;
 
         viewer->removeAllShapes();
 

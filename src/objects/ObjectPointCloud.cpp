@@ -58,9 +58,6 @@ grasping_tools::ObjectPointCloud::ObjectPointCloud(std::string _filename) {
 			std::cerr << "Error loading point cloud of object" << std::endl; 
 			return;
 		}else{
-			for(auto field: cloud.fields){
-				std::cout << field << std::endl;
-			}
 			pcl::fromPCLPointCloud2(cloud, mVertices);
 			#warning Cloud is assumed to have normals !!! Need to fix
 			// if(cloud.fields.contains("curvature")){
