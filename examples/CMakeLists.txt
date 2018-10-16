@@ -4,6 +4,20 @@ macro(build_example example_name example_files)
     target_link_libraries(${example_name} LINK_PUBLIC gpis)
     target_include_directories(${example_name} PUBLIC ../include)
     target_link_libraries(${example_name} LINK_PUBLIC grasping_tools)
+
+
+    target_include_directories(${example_name} PUBLIC "dep/qhull/src")
+    if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+        target_link_libraries(${example_name} LINK_PUBLIC qhullcpp_d)
+        target_link_libraries(${example_name} LINK_PUBLIC qhullstatic_rd)
+    else()
+        target_link_libraries(${example_name} LINK_PUBLIC qhullcpp)
+        target_link_libraries(${example_name} LINK_PUBLIC qhullstatic_r)
+    endif()
+
+    target_link_libraries(${example_name} LINK_PUBLIC ${qhull_STATIC})
+
+
 endmacro()
 
 set(MESHGRASPING_EXAMPLE_FILES mesh_grasping/main.cpp)
