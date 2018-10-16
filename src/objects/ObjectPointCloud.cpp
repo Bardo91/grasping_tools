@@ -16,9 +16,11 @@
 #include <pcl/common/transforms.h>
 #include <pcl/PCLPointCloud2.h>
 #include <pcl/octree/octree.h>
+#include <pcl/features/normal_3d.h>
 
 #include <thread>
 #include <chrono>
+#include <algorithm>
 
 //---------------------------------------------------------------------------------------------------------------------
 grasping_tools::ObjectPointCloud::ObjectPointCloud(std::string _filename) {
@@ -29,61 +31,41 @@ grasping_tools::ObjectPointCloud::ObjectPointCloud(std::string _filename) {
         if (pcl::io::loadPCDFile(_filename, cloud) != 0) {
 			std::cerr << "Error loading point cloud of object" << std::endl;
 			return;
-		}else{
-			pcl::fromPCLPointCloud2(cloud, mVertices);
-			#warning Cloud is assumed to have normals !!! Need to fix
-			// if(cloud.fields.contains("curvature")){
-			// 	// do nothing
-			// }else{
-			// 	pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> ne;
-  			// 	ne.setInputCloud (cloud);
-			// 	pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ> ());
-			// 	ne.setSearchMethod (tree);
-			// 	pcl::PointCloud<pcl::Normal>::Ptr cloud_normals (new pcl::PointCloud<pcl::Normal>);
-			// 	// Use all neighbors in a sphere of radius 3cm
-			// 	ne.setRadiusSearch (0.03);
-			// 	// Compute the features
-			// 	ne.compute (*cloud_normals);
-			// 	for(unsigend i = 0; i< cloud.size();i++){
-			// 		cloud.normal_x = cloud_normals->points[i].normal_x;
-			// 		cloud.normal_y = cloud_normals->points[i].normal_y;
-			// 		cloud.normal_z = cloud_normals->points[i].normal_z;
-			// 	}
-			// }
-
 		}
 	}else if(_filename.find(".ply") != std::string::npos){
-		pcl::PCLPointCloud2 cloud;
 		if (pcl::io::loadPLYFile(_filename, cloud) != 0) {
 			std::cerr << "Error loading point cloud of object" << std::endl; 
 			return;
-		}else{
-			pcl::fromPCLPointCloud2(cloud, mVertices);
-			#warning Cloud is assumed to have normals !!! Need to fix
-			// if(cloud.fields.contains("curvature")){
-			// 	// do nothing
-			// }else{
-			// 	pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> ne;
-			// 	ne.setInputCloud (cloud);
-			// 	pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ> ());
-			// 	ne.setSearchMethod (tree);
-			// 	pcl::PointCloud<pcl::Normal>::Ptr cloud_normals (new pcl::PointCloud<pcl::Normal>);
-			// 	// Use all neighbors in a sphere of radius 3cm
-			// 	ne.setRadiusSearch (0.03);
-			// 	// Compute the features
-			// 	ne.compute (*cloud_normals);
-			// 	for(unsigend i = 0; i< cloud.size();i++){
-			// 		cloud.normal_x = cloud_normals->points[i].normal_x;
-			// 		cloud.normal_y = cloud_normals->points[i].normal_y;
-			// 		cloud.normal_z = cloud_normals->points[i].normal_z;
-			// 	}
-			// }
 		}
 	}
 	else{
 		std::cerr << "Unsupported filetype, please provide another filetype." << std::endl;
 		assert(false);
 		return;
+	}
+
+	pcl::fromPCLPointCloud2(cloud, mVertices);
+	bool hasCurvature = false;
+	for(auto &field: cloud.fields){
+		if(field.name == "curvature")
+			hasCurvature = true;
+	}
+	if(!hasCurvature){
+		std::cout << "Computing curvature" << std::endl;
+		pcl::NormalEstimation<pcl::PointNormal, pcl::Normal> ne;
+		ne.setInputCloud (mVertices.makeShared());
+		pcl::search::KdTree<pcl::PointNormal>::Ptr tree (new pcl::search::KdTree<pcl::PointNormal> ());
+		ne.setSearchMethod (tree);
+		pcl::PointCloud<pcl::Normal>::Ptr cloud_normals (new pcl::PointCloud<pcl::Normal>);
+		// Use all neighbors in a sphere of radius 3cm
+		ne.setRadiusSearch (0.015);	// 666 Make adaptative value
+		// Compute the features
+		ne.compute (*cloud_normals);
+		for(unsigned i = 0; i< mVertices.size();i++){
+			mVertices[i].normal_x = -cloud_normals->points[i].normal_x;
+			mVertices[i].normal_y = -cloud_normals->points[i].normal_y;
+			mVertices[i].normal_z = -cloud_normals->points[i].normal_z;
+		}
 	}
 
 	// Compute centroid.
