@@ -6,7 +6,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <grasping_tools/objects/ObjectGpis.h>
-#include <gpis/Utils/SurfaceGpis.h>
+#include <gpis/utils/SurfaceGpis.h>
 
 //---------------------------------------------------------------------------------------------------------------------
 grasping_tools::ObjectGpis::ObjectGpis(const arma::mat & _dataPoints, gpis::Mean * _gpMean, gpis::Kernel * _gpKernel, const arma::vec &_gpMeanParams):

@@ -15,30 +15,6 @@ project(gpis)
 # Modify following flags to enable/disable features
 set(ENABLE_PARALLEL_FOR OFF)
 
-#################################################
-######## Automatic project configuration ########
-#################################################
-# Collect all sources
-file(GLOB_RECURSE GPIS_SOURCE_FILES "gpis/*.cpp" "gpis/*.h" "gpis/*.inl")
-
-# Clasify sources according to folder structure.
-# This creates a nice layout for the project in visual studio
-# This macro is courtesy of http://www.cmake.org/pipermail/cmake/2013-November/056336.html
-macro(GroupSources curdir)
-	file(GLOB children RELATIVE ${PROJECT_SOURCE_DIR}/${curdir}
-		${PROJECT_SOURCE_DIR}/${curdir}/*)
-	foreach(child ${children})
-		if(IS_DIRECTORY ${PROJECT_SOURCE_DIR}/${curdir}/${child})
-			GroupSources(${curdir}/${child})
-		else()
-			string(REPLACE "/" "\\" groupname ${curdir})
-			source_group(${groupname} FILES ${PROJECT_SOURCE_DIR}/${curdir}/${child})
-		endif()
-	endforeach()
-endmacro()
-
-GroupSources(gpis)
-
 #########################################
 ###### Loading 3rd party libraries.######
 #########################################
@@ -78,8 +54,15 @@ endif()
 #########################################
 set(PROJECT_NAME gpis)
 
-add_library(${PROJECT_NAME} ${GPIS_SOURCE_FILES})
-target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/gpis)
+
+# Collect all sources
+file(GLOB_RECURSE GPIS_SOURCE_FILES "src/*.cpp")
+file(GLOB_RECURSE GPIS_HEADER_FILES "include/*.h" "include/*.inl")
+
+add_library(${PROJECT_NAME} ${GPIS_SOURCE_FILES} ${GPIS_HEADER_FILES})
+target_include_directories(${PROJECT_NAME} PRIVATE "include") 
+
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_11)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${ARMADILLO_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} LINK_PUBLIC ${ARMADILLO_LIBRARIES})
@@ -92,3 +75,48 @@ target_link_libraries(${PROJECT_NAME} LINK_PUBLIC ${PCL_LIBRARIES})
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${OpenCV_INCLUDE_DIRS})  ## REMOVE
 target_link_libraries(${PROJECT_NAME} LINK_PUBLIC ${OpenCV_LIBS})
+
+
+#########################################
+######			INSTALL 		   ######
+#########################################
+include(CMakePackageConfigHelpers)
+
+if(NOT DEFINED CMAKE_INSTALL_PREFIX)
+  set(CMAKE_INSTALL_PREFIX "/usr/local")
+endif() 
+
+install(TARGETS gpis
+        EXPORT gpisTargets
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib
+        INCLUDES DESTINATION ${CMAKE_INSTALL_PREFIX}
+        )
+
+write_basic_package_version_file(
+    gpisConfigVersion.cmake
+    VERSION ${PACKAGE_VERSION}
+    COMPATIBILITY AnyNewerVersion
+    )
+
+
+# This installs the include folder
+install(DIRECTORY include DESTINATION ${CMAKE_INSTALL_PREFIX} FILES_MATCHING PATTERN "*.h")
+install(DIRECTORY include DESTINATION ${CMAKE_INSTALL_PREFIX} FILES_MATCHING PATTERN "*.inl")
+
+export(TARGETS gpis NAMESPACE gpis:: FILE gpisTargets.cmake)
+
+# This generates gpisTargets.cmake
+install(EXPORT gpisTargets
+    FILE gpisTargets.cmake
+    NAMESPACE gpis::
+    DESTINATION lib/cmake/gpis
+    )
+
+configure_file(gpisConfig.cmake.in gpisConfig.cmake @ONLY)
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/gpisConfig.cmake"
+        DESTINATION lib/cmake/gpis
+        )
+
+
+

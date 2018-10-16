@@ -10,8 +10,8 @@
 
 #include <grasping_tools/Object.h>
 
-#include <Sampler/Prior/Kernel.h>
-#include <Sampler/Prior/Mean.h>
+#include <gpis/sampler/prior/Kernel.h>
+#include <gpis/sampler/prior/Mean.h>
 
 #include <pcl/PolygonMesh.h>
 #include <pcl/point_cloud.h>

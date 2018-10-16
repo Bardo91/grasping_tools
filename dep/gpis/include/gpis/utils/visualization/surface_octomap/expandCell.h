@@ -1,0 +1,17 @@
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifndef GPIS_UTILS_VISUALIZATION_SURFACEOCTOMAP_EXPANDCELL_H_
+#define GPIS_UTILS_VISUALIZATION_SURFACEOCTOMAP_EXPANDCELL_H_
+
+#include <gpis/utils/visualization/surface_octomap/GpisCell.h>
+
+namespace gpis {
+	void expandCell(GpisCell &cell, GpisCell::evalFun &_evalFun);
+}	//	namespace gpis
+
+#endif	//	GPIS_UTILS_VISUALIZATION_SURFACEOCTOMAP_EXPANDCELL_H_
