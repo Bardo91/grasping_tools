@@ -113,7 +113,7 @@ int main(int _argc, char** _argv){
             plotContactPoint(cp, *viewer, 0.1, "cone"+std::to_string(counter++));
         }
     
-        for(float rot = 0; rot < M_PI; rot+=rotRes){
+        for(float rot = 0; rot < M_PI*2; rot+=rotRes){
             auto handMesh = generateHandModel(grasps[i], rot);
 
             viewer->addPolygonMesh(handMesh, "hand");
