@@ -23,3 +23,6 @@ endmacro()
 set(MESHGRASPING_EXAMPLE_FILES mesh_grasping/main.cpp)
 build_example(example_mesh_grasping MESHGRASPING_EXAMPLE_FILES)
 
+set(POINTCLOUDGRASPING_EXAMPLE_FILES point_cloud_grasping/main.cpp)
+build_example(example_point_cloud_grasping POINTCLOUDGRASPING_EXAMPLE_FILES)
+

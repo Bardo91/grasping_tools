@@ -7,6 +7,7 @@
 
 #include <grasping_tools/objects/ObjectGpis.h>
 #include <grasping_tools/objects/ObjectMesh.h>
+#include <grasping_tools/objects/ObjectPointCloud.h>
 #include <grasping_tools/Grasp.h>
 #include <grasping_tools/mathTools.h>
 #include <deque>
@@ -259,4 +260,12 @@ namespace grasping_tools {
 		return grasps;
 	}
 
+	//-----------------------------------------------------------------------------------------------------------------
+	template<>
+	inline  std::vector<Grasp> GripperHandTwoFingers::generateGrasps<ObjectPointCloud>(ObjectPointCloud &_object, double _resolution){
+		// Generate candidate grasps
+		std::vector<Grasp> grasps;
+
+		return grasps;
+	}
 }
