@@ -19,8 +19,7 @@
 //  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //---------------------------------------------------------------------------------------------------------------------
 
-#include <iostream>
-
+#include <algorithm>
 #include <iostream>
 #include <thread>
 #include <chrono>
@@ -96,6 +95,10 @@ int main(int _argc, char** _argv){
     viewer->registerKeyboardCallback(keycallback, nullptr);
     viewer->setBackgroundColor(0.5,0.5,0.5);
     viewer->addPointCloud(vertices.makeShared(), "object");
+
+    std::sort(grasps.begin(), grasps.end(), []( grasping_tools::Grasp &_a,  grasping_tools::Grasp &_b)->bool{
+        return _a.lmrw() > _b.lmrw();
+    });
 
     for(unsigned i = 0; i < grasps.size() ; i++){
         auto cps = grasps[i].contactPoints();
