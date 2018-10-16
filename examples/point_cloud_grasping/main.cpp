@@ -99,8 +99,8 @@ int main(int _argc, char** _argv){
 
     for(unsigned i = 0; i < grasps.size() ; i++){
         auto cps = grasps[i].contactPoints();
-        if(!grasps[i].hasForceClosure())
-            continue;
+        //if(!grasps[i].hasForceClosure())
+        //    continue;
 
         viewer->removeAllShapes();
 
@@ -109,7 +109,7 @@ int main(int _argc, char** _argv){
             plotContactPoint(cp, *viewer, 0.1, "cone"+std::to_string(counter++));
         }
     
-        for(float rot = 0; rot < M_PI; rot+=rotRes){
+        for(float rot = 0; rot < M_PI*2; rot+=rotRes){
             auto handMesh = generateHandModel(grasps[i], rot);
 
             viewer->addPolygonMesh(handMesh, "hand");

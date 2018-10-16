@@ -15,6 +15,7 @@
 #include <pcl/common/centroid.h>
 #include <pcl/common/transforms.h>
 #include <pcl/PCLPointCloud2.h>
+#include <pcl/octree/octree.h>
 
 #include <thread>
 #include <chrono>
@@ -25,7 +26,7 @@ grasping_tools::ObjectPointCloud::ObjectPointCloud(std::string _filename) {
 	std::cout << "Loading file: " << _filename << std::endl;
 	pcl::PCLPointCloud2 cloud;
 	if (_filename.find(".pcd") != std::string::npos) {
-        if (pcl::io::loadPCDFile(_filename, cloud) == 0) {
+        if (pcl::io::loadPCDFile(_filename, cloud) != 0) {
 			std::cerr << "Error loading point cloud of object" << std::endl;
 			return;
 		}else{
@@ -52,10 +53,15 @@ grasping_tools::ObjectPointCloud::ObjectPointCloud(std::string _filename) {
 
 		}
 	}else if(_filename.find(".ply") != std::string::npos){
-		if (pcl::io::loadPLYFile(_filename, mVertices) == 0) {
-			std::cerr << "Error loading point cloud of object" << std::endl;
+		pcl::PCLPointCloud2 cloud;
+		if (pcl::io::loadPLYFile(_filename, cloud) != 0) {
+			std::cerr << "Error loading point cloud of object" << std::endl; 
 			return;
 		}else{
+			for(auto field: cloud.fields){
+				std::cout << field << std::endl;
+			}
+			pcl::fromPCLPointCloud2(cloud, mVertices);
 			#warning Cloud is assumed to have normals !!! Need to fix
 			// if(cloud.fields.contains("curvature")){
 			// 	// do nothing
@@ -135,16 +141,33 @@ arma::colvec3 grasping_tools::ObjectPointCloud::intersect(arma::colvec3 _initPoi
 
 //---------------------------------------------------------------------------------------------------------------------
 arma::mat grasping_tools::ObjectPointCloud::intersectRay(arma::colvec3 _p1, arma::colvec3 _p2) {
-    pcl::PointNormal initPoint;
-	initPoint.x = _p1[0];
-	initPoint.y = _p1[1];
-	initPoint.z = _p1[2];
+	pcl::octree::OctreePointCloudSearch<pcl::PointNormal> rayTracer(0.01);
+    rayTracer.setInputCloud(mVertices.makeShared());
+    rayTracer.addPointsFromInputCloud();
 
-	auto vertex = mVertices[closestVertexId(initPoint)];
+	Eigen::Vector3f cameraOrigin =  {_p1[0], _p1[1], _p1[2]};
+	Eigen::Vector3f rayEnd = {_p2[0], _p2[1], _p2[2]};
+
+	Eigen::Vector3f rayDir = rayEnd - cameraOrigin;
+
+	std::vector<int> indices;
+	rayTracer.getIntersectedVoxelIndices(cameraOrigin, rayDir, indices);
 	
-	arma::mat intersections = {	vertex.x,vertex.y, vertex.z,
-								vertex.normal_x, vertex.normal_y, vertex.normal_z};
-	
+	arma::mat intersections;
+
+	for(unsigned i = 0; i < indices.size(); i++){
+		auto p = mVertices[i];
+		arma::colvec6 point;
+		point[0] = p.x;
+		point[1] = p.y;
+		point[2] = p.z;
+		point[3] = p.normal_x;
+		point[4] = p.normal_y;
+		point[5] = p.normal_z;
+		point.tail(3) /= arma::norm(point.tail(3));
+		intersections.insert_cols(intersections.n_cols, point);
+	}
+
 	return intersections;
 }
 
