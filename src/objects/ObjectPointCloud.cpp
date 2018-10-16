@@ -37,6 +37,11 @@ grasping_tools::ObjectPointCloud::ObjectPointCloud(std::string _filename) {
 			std::cerr << "Error loading point cloud of object" << std::endl; 
 			return;
 		}
+	}else if(_filename.find(".obj") != std::string::npos){
+		if (pcl::io::loadOBJFile(_filename, cloud) != 0) {
+			std::cerr << "Error loading point cloud of object" << std::endl; 
+			return;
+		}
 	}
 	else{
 		std::cerr << "Unsupported filetype, please provide another filetype." << std::endl;
