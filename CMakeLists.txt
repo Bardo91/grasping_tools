@@ -89,7 +89,7 @@ target_compile_options(${PROJECT_NAME} PUBLIC ${GRASPING_TOOLS_COMPILE_OPTIONS_R
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_11)
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/dep/gpis/include) 
-target_link_libraries(${PROJECT_NAME} LINK_PUBLIC gpis::gpis)
+target_link_libraries(${PROJECT_NAME} LINK_PUBLIC gpis)
 
 target_include_directories(${PROJECT_NAME} PUBLIC "dep/qhull/src")
 if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
@@ -123,6 +123,11 @@ endif(${catkin_FOUND})
 
 #add_subdirectory(tests)
 
+#########################################
+######			   EXAMPLES        ######
+#########################################
+
+add_subdirectory(examples)
 
 #########################################
 ######			Documentation	   ######
