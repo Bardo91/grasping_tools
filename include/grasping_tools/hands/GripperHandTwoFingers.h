@@ -13,6 +13,10 @@
 #include <pcl/point_types.h>
 
 namespace grasping_tools {
+	/// Class that inherit from Hand parent class that is able to generate grasps for objects using a two fingers
+	/// parallel gripper model.
+	///
+	/// Class defined in `#include <grasping_tools/hands/GripperHandTwoFingers.h>`
 	class GripperHandTwoFingers : public Hand {
 	public:
 		/// Constructor of hand. 

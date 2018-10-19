@@ -12,6 +12,10 @@
 #include <pcl/PolygonMesh.h>
 
 namespace grasping_tools {
+	/// Class that inherit from Hand parent class that is used to generate grasps taking into account the restrictions
+	/// of a 3DoF arm.
+	///
+	/// Class defined in `#include <grasping_tools/hands/Arm3DOF.h>`
 	class Arm3DOF : public Hand {
 	public:
 		/// Constructor of hand. 

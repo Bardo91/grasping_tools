@@ -20,6 +20,9 @@
 
 
 namespace grasping_tools {
+	/// Class that inherit from Object parent class. This kind of objects uses a point cloud as model for object's surface
+	///
+	/// Class defined in `#include <grasping_tools/objects/ObjecPointCloud.h>`
 	class ObjectPointCloud: public Object {
 	public:
 		/// Construct object from a file.

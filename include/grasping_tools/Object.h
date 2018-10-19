@@ -12,6 +12,9 @@
 #include <Eigen/Eigen>
 
 namespace grasping_tools {
+	/// Parent class from which all kind of objects inherit, such as ObjectMesh, ObjectGpis and ObjectPointCloud
+	///
+	/// Class defined in `#include <grasping_tools/Object.h>`
 	class Object {
 	public:
 		/// Return the centroid of the object.

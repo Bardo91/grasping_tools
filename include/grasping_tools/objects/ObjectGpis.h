@@ -18,6 +18,10 @@
 #include <pcl/point_types.h>
 
 namespace grasping_tools {
+	/// Class that inherit from Object parent class. This kind of objects uses GPIS probablistic framework for
+	/// reconstructing object's surface. 
+	///
+	/// Class defined in `#include <grasping_tools/objects/ObjectGpis.h>`
 	class ObjectGpis: public Object{
 	public:
 		/// Constructor Object GPIS 

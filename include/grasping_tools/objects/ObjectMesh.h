@@ -20,6 +20,9 @@
 
 
 namespace grasping_tools {
+	/// Class that inherit from Object parent class. This kind of objects uses a mesh as model for object's surface
+	///
+	/// Class defined in `#include <grasping_tools/objects/ObjectMesh.h>`
 	class ObjectMesh: public Object {
 	public:
 		/// Construct object from a file.
