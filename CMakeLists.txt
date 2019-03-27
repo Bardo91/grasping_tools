@@ -36,7 +36,7 @@ endif()
 
 ## Load PCL
 find_package(PCL QUIET REQUIRED)
-if(${PCL_FOUND} AND ${VTK_FOUND} AND ${Boost_FOUND} AND ${FLANN_FOUND} STREQUAL "TRUE")
+if(${PCL_FOUND})
 	MESSAGE( STATUS "Adding properly PCL and its dependencies")
 	# -march=native -msse4.2 -mfpmath=sse -DDISABLE_PCAP-DDISABLE_PNG-DDISABLE_LIBUSB_1_0
 	list(APPEND GRASPING_TOOLS_DEFINITIONS "ENABLE_PCL")

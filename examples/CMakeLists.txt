@@ -26,3 +26,6 @@ build_example(example_mesh_grasping MESHGRASPING_EXAMPLE_FILES)
 set(POINTCLOUDGRASPING_EXAMPLE_FILES point_cloud_grasping/main.cpp)
 build_example(example_point_cloud_grasping POINTCLOUDGRASPING_EXAMPLE_FILES)
 
+set(GPISGRASPING_EXAMPLE_FILES gpis_grasping/main.cpp)
+build_example(example_gpis_grasping GPISGRASPING_EXAMPLE_FILES)
+

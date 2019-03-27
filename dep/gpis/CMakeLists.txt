@@ -29,14 +29,23 @@ endif()
 find_package(Boost REQUIRED COMPONENTS system)
 
 ## Load PCL
-find_package(PCL 1.8 QUIET REQUIRED)
-if(${PCL_FOUND} AND ${VTK_FOUND} AND ${Boost_FOUND} AND ${FLANN_FOUND} STREQUAL "TRUE")
+find_package(PCL QUIET REQUIRED)
+if(${PCL_FOUND})
 	MESSAGE( STATUS "Adding properly PCL and its dependencies")
-	add_definitions(-DENABLE_PCL)
-	add_definitions(${PCL_DEFINITIONS})
+	# -march=native -msse4.2 -mfpmath=sse -DDISABLE_PCAP-DDISABLE_PNG-DDISABLE_LIBUSB_1_0
+	list(APPEND GRASPING_TOOLS_DEFINITIONS "ENABLE_PCL")
+	list(APPEND GRASPING_TOOLS_DEFINITIONS "DISABLE_PCAP-DDISABLE_PNG")
+	list(APPEND GRASPING_TOOLS_DEFINITIONS "DISABLE_LIBUSB_1_0")
+	set(GRASPING_TOOLS_COMPILE_OPTIONS "${GRASPING_TOOLS_COMPILE_OPTIONS} -march=native -msse4.2 -mfpmath=sse -L/usr/lib/x86_64-linux-gnu")
+	if(${PCL_VERSION} VERSION_GREATER 1.8)
+		list(APPEND GRASPING_TOOLS_DEFINITIONS "HAS_PCL_1_8")
+	else()
+		list(APPEND GRASPING_TOOLS_DEFINITIONS "HAS_PCL_1_7")
+	endif()
 else()
 	MESSAGE( FATAL_ERROR "Couldnt Add PCL and/or it's dependencies")
 endif()
+
 
 ## Load OpenMP
 find_package(OpenMP)

@@ -137,11 +137,11 @@ namespace grasping_tools {
 		std::vector<arma::colvec3> surfacePoints1, surfacePoints2;
 		// Get surface points.
 		for (unsigned i = 0; i < nPoints - 1; i++) {
-			if (eval1[i] < 0 != eval1[i + 1] < 0) {
+			if ((eval1[i] < 0) != (eval1[i + 1] < 0)) {
 				surfacePoints1.push_back(points1.col(i));
 			}
 
-			if (eval2[i] < 0 != eval2[i + 1] < 0) {
+			if ((eval2[i] < 0) != (eval2[i + 1] < 0)) {
 				surfacePoints2.push_back(points2.col(i));
 			}
 		}
