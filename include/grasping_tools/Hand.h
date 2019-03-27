@@ -12,6 +12,9 @@
 #include <grasping_tools/Object.h>
 
 namespace grasping_tools {
+	/// Parent class from which all hands inherit
+	///
+	/// Class defined in `#include <grasping_tools/Hand.h>`
 	class Hand {
 	public:
 		template<typename ObjectType_>

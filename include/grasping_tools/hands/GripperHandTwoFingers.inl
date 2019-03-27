@@ -7,11 +7,11 @@
 
 #include <grasping_tools/objects/ObjectGpis.h>
 #include <grasping_tools/objects/ObjectMesh.h>
+#include <grasping_tools/objects/ObjectPointCloud.h>
 #include <grasping_tools/Grasp.h>
 #include <grasping_tools/mathTools.h>
 #include <deque>
 
-//#include <hecatonquiros/model_solvers/ModelSolverOpenRave.h>
 
 namespace grasping_tools {
 	template<>
@@ -19,18 +19,18 @@ namespace grasping_tools {
 		// Get random point on a sphere with radius 1.5 of max distance from object's origin.
 		arma::colvec3 center = _object.center();
 		arma::mat data = _object.data();
-
         double minX = arma::min(data.row(0)), maxX = arma::max(data.row(0));
         double minY = arma::min(data.row(1)), maxY = arma::max(data.row(1));
         double minZ = arma::min(data.row(2)), maxZ = arma::max(data.row(2));
 
         double radius = std::max(std::max(fabs(maxX - minX) * 3,
-                            fabs(maxY - minY) * 3),
-                            fabs(maxZ - minZ) * 3);
+                             fabs(maxY - minY) * 3),
+                             fabs(maxZ - minZ) * 3);
 
 
 		int randIdx = double(rand())/RAND_MAX*(data.n_cols -1);
 		arma::colvec cpPos1 = data.col(randIdx).head(3);;
+		//std::cout << "cpPos1: " << data.col(randIdx).t() << std::endl;
 		// Get opposite point
 		arma::colvec p0 = cpPos1 - data.col(randIdx).tail(3)*0.01;
 		arma::colvec p1 = cpPos1 - data.col(randIdx).tail(3)*0.5;
@@ -43,6 +43,9 @@ namespace grasping_tools {
 			else {
 				p0 = newPoint;
 			}
+			// std::cout << "------------" << std::endl;
+			// std::cout << "p0: " << p0.t() << std::endl;
+			// std::cout << "p1: " << p1.t() << std::endl;
 		} while (norm(p1 - p0) > 1e-3);
 		arma::colvec cpPos2 = p0;
 
@@ -121,8 +124,8 @@ namespace grasping_tools {
 		int nZ = (sizes[2])/_resolution;
 
 		// (-)X normal faces
-		for(unsigned i = 0; i < nY; i++){
-			for(unsigned j = 0; j < nZ; j++){
+		for(int i = 0; i < nY; i++){
+			for(int j = 0; j < nZ; j++){
 				arma::colvec6 pointPlusNormal = {-sizes[0]/2,
 												-nY*_resolution/2 + i*_resolution,
 												-nZ*_resolution/2 + j*_resolution,
@@ -137,8 +140,8 @@ namespace grasping_tools {
 		}
 
 		// (-)Y normal faces
-		for(unsigned i = 0; i < nX; i++){
-			for(unsigned j = 0; j < nZ; j++){
+		for(int i = 0; i < nX; i++){
+			for(int j = 0; j < nZ; j++){
 				arma::colvec6 pointPlusNormal = {-nX*_resolution/2 + i*_resolution,
 												-sizes[1]/2,
 												-nZ*_resolution/2 + j*_resolution,
@@ -153,8 +156,8 @@ namespace grasping_tools {
 		}
 
 		// (-)Z normal faces
-		for(unsigned i = 0; i < nX; i++){
-			for(unsigned j = 0; j < nY; j++){
+		for(int i = 0; i < nX; i++){
+			for(int j = 0; j < nY; j++){
 				arma::colvec6 pointPlusNormal = {-nX*_resolution/2 + i*_resolution,
 												-nY*_resolution/2 + j*_resolution,
 												-sizes[2]/2,
@@ -236,7 +239,7 @@ namespace grasping_tools {
 				std::sort(arrangedIds.begin(), arrangedIds.end(), 
 						[](std::pair<int, float> &_a, std::pair<int, float> &_b){ return _a.second < _b.second; });
 
-				int nFolds = intersections.n_cols/2;
+				unsigned nFolds = intersections.n_cols/2;
 				for(unsigned jumper = 1; jumper <= nFolds; jumper+=2){
 					for(unsigned initId = 0; initId +jumper < intersections.n_cols; initId += 2){
 						auto p1 = intersections.col(initId);
@@ -259,4 +262,120 @@ namespace grasping_tools {
 		return grasps;
 	}
 
+	//-----------------------------------------------------------------------------------------------------------------
+	template<>
+	inline  std::vector<Grasp> GripperHandTwoFingers::generateGrasps<ObjectPointCloud>(ObjectPointCloud &_object, double _resolution){
+
+		// Get boundary of object
+		arma::colvec3 min, max;
+		_object.minMax(min, max);
+		arma::colvec3 sizes = 	{(max[0] - min[0]), (max[1]-min[1]), (max[2] - min[2])};
+		//arma::colvec3 center = 	{max[0] - min[0], max[1]-min[1], max[2] - min[2]}; center /= 2;
+
+		// Generate N points equally distributed on the faces of a centered cube.
+		arma::mat initPointsPlusNormals;
+		
+		int nX = (sizes[0])/_resolution;
+		int nY = (sizes[1])/_resolution;
+		int nZ = (sizes[2])/_resolution;
+
+		// (-)X normal faces
+		for(int i = 0; i < nY; i++){
+			for(int j = 0; j < nZ; j++){
+				arma::colvec6 pointPlusNormal = {-sizes[0]/2,
+												-nY*_resolution/2 + i*_resolution,
+												-nZ*_resolution/2 + j*_resolution,
+												1,
+												0,
+												0};
+				initPointsPlusNormals.insert_cols(initPointsPlusNormals.n_cols, pointPlusNormal);
+				pointPlusNormal[0]*=-1;
+				pointPlusNormal[3]*=-1;
+				initPointsPlusNormals.insert_cols(initPointsPlusNormals.n_cols, pointPlusNormal);
+			}	
+		}
+
+		// (-)Y normal faces
+		for(int i = 0; i < nX; i++){
+			for(int j = 0; j < nZ; j++){
+				arma::colvec6 pointPlusNormal = {-nX*_resolution/2 + i*_resolution,
+												-sizes[1]/2,
+												-nZ*_resolution/2 + j*_resolution,
+												0,
+												1,
+												0};
+				initPointsPlusNormals.insert_cols(initPointsPlusNormals.n_cols, pointPlusNormal);
+				pointPlusNormal[1]*=-1;
+				pointPlusNormal[4]*=-1;
+				initPointsPlusNormals.insert_cols(initPointsPlusNormals.n_cols, pointPlusNormal);
+			}	
+		}
+
+		// (-)Z normal faces
+		for(int i = 0; i < nX; i++){
+			for(int j = 0; j < nY; j++){
+				arma::colvec6 pointPlusNormal = {-nX*_resolution/2 + i*_resolution,
+												-nY*_resolution/2 + j*_resolution,
+												-sizes[2]/2,
+												0,
+												0,
+												1};
+				initPointsPlusNormals.insert_cols(initPointsPlusNormals.n_cols, pointPlusNormal);
+				pointPlusNormal[2]*=-1;
+				pointPlusNormal[5]*=-1;
+				initPointsPlusNormals.insert_cols(initPointsPlusNormals.n_cols, pointPlusNormal);
+			}	
+		}
+
+		// Rotate points with pose
+		arma::mat44 objectPose;
+		_object.pose(objectPose);
+		initPointsPlusNormals.rows(0,2) = objectPose.cols(0,2).rows(0,2)*initPointsPlusNormals.rows(0,2);
+		for(unsigned i = 0; i < initPointsPlusNormals.n_cols;i++){
+			initPointsPlusNormals.col(i).rows(0,2) +=  objectPose.col(3).rows(0,2);
+		}
+		initPointsPlusNormals.rows(3,5) = objectPose.cols(0,2).rows(0,2)*initPointsPlusNormals.rows(3,5);
+
+		// Generate candidate grasps
+		std::vector<Grasp> grasps;
+
+		// Trace rays
+		for(unsigned i = 0; i < initPointsPlusNormals.n_cols; i++) {
+			arma::colvec6 initPointPlusNormal = initPointsPlusNormals.col(i);
+			arma::mat intersections = _object.intersectRay(initPointPlusNormal.rows(0,2), initPointPlusNormal.rows(0,2)+initPointPlusNormal.rows(3,5));
+			
+			if(intersections.n_cols > 1 && intersections.n_cols%2 == 0){
+				// Compute distances to source point.
+				std::vector<std::pair<int, float>> arrangedIds(intersections.n_cols);
+				
+				for(unsigned idx = 0; idx < intersections.n_cols; idx++){
+					arrangedIds[idx] = {idx, arma::norm(initPointPlusNormal.head(3) - intersections.col(idx).head(3))};
+				}
+
+				// Sort intersections by distance.
+				std::sort(arrangedIds.begin(), arrangedIds.end(), 
+						[](std::pair<int, float> &_a, std::pair<int, float> &_b){ return _a.second < _b.second; });
+
+				unsigned nFolds = intersections.n_cols/2;
+				for(unsigned jumper = 1; jumper <= nFolds; jumper+=2){
+					for(unsigned initId = 0; initId +jumper < intersections.n_cols; initId += 2){
+						auto p1 = intersections.col(initId);
+						auto p2 = intersections.col(initId+jumper);
+						
+						// Check aperture of gripper
+						if(arma::norm(p1.head(3)-p2.head(3)) < mAperture){	// 666 TODO take into account finger size
+							std::vector<ContactPoint> cps;
+							cps.push_back(ContactPoint(p1.head(3), arma::eye(3, 3), p1.tail(3), arma::eye(3, 3), eContactTypes::SFC, 1, 1, 1));
+							cps.push_back(ContactPoint(p2.head(3), arma::eye(3, 3), p2.tail(3), arma::eye(3, 3), eContactTypes::SFC, 1, 1, 1));
+							
+							Grasp grasp;
+							grasp.contactPoints(cps);
+							grasps.push_back(grasp);
+						}
+					}
+				}
+			}
+		}
+		return grasps;
+	}
 }

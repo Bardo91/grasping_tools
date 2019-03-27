@@ -21,6 +21,11 @@ namespace orgQhull{
 }
 
 namespace grasping_tools {
+	/// Class that holds information about grasps. It contains the list of contact points and is able to compute
+	/// its quality, as for example rank of grasp matrix, quality metrics related to Grasp matrix, force closure
+	/// and largest-minimum resisted wrench (lmrw).
+	///
+	/// Class defined in `#include <grasping_tools/Grasp.h>`
 	class Grasp {
 	public:
 		Grasp();

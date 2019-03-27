@@ -1,0 +1,8 @@
+get_filename_component(graspint_tools_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+include(CMakeFindDependencyMacro)
+
+find_dependency(PCL QUIET REQUIRED)
+
+if(NOT TARGET graspint_tools::graspint_tools)
+    include("${graspint_tools_CMAKE_DIR}/graspint_toolsTargets.cmake")
+endif()

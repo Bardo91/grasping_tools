@@ -52,6 +52,9 @@ namespace grasping_tools {
 	const arma::colvec3 C_AXIS_Y = { 0, 1, 0 };
 	const arma::colvec3 C_AXIS_Z = { 0, 0, 1 };
 
+	/// Class that holds the information about contact points for grasps
+	/// 
+	/// Class defined in `#include <grasping_tools/ContactPoint.h>`
 	class   ContactPoint {
 	public:
 		/// Contructor of contact point

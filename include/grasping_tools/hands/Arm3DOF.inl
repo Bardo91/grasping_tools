@@ -198,7 +198,7 @@ namespace grasping_tools {
 
         std::vector<double> validPoints;
 
-        for(unsigned int i = 0; i < npCircle; i++){
+        for(int i = 0; i < npCircle; i++){
 
             // Calculate inverse kinematic for points
             std::vector<int> IKArm(3);

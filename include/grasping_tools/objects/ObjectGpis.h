@@ -10,14 +10,18 @@
 
 #include <grasping_tools/Object.h>
 
-#include <Sampler/Prior/Kernel.h>
-#include <Sampler/Prior/Mean.h>
+#include <gpis/sampler/prior/Kernel.h>
+#include <gpis/sampler/prior/Mean.h>
 
 #include <pcl/PolygonMesh.h>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 
 namespace grasping_tools {
+	/// Class that inherit from Object parent class. This kind of objects uses GPIS probablistic framework for
+	/// reconstructing object's surface. 
+	///
+	/// Class defined in `#include <grasping_tools/objects/ObjectGpis.h>`
 	class ObjectGpis: public Object{
 	public:
 		/// Constructor Object GPIS 
